@@ -189,9 +189,9 @@ class ModelRunner:
     @torch.inference_mode()
     def run_model(self, input_ids: torch.Tensor, positions: torch.Tensor, is_prefill: bool):
         if is_prefill or self.enforce_eager or input_ids.size(0) > 512:
-            from nndeploy.e_base import get_parameters_buffers_run_info, get_activation_run_info, get_flops_run_info
-            get_parameters_buffers_run_info(self.model)
-            get_activation_run_info(self.model)
+            # from nndeploy.e_base import get_parameters_buffers_run_info, get_activation_run_info, get_flops_run_info
+            # get_parameters_buffers_run_info(self.model)
+            # get_activation_run_info(self.model)
             # get_flops_run_info(self.model, input_ids.shape)
             return self.model.compute_logits(self.model(input_ids, positions))
         else:
