@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2025 
+ *   All rights reserved.
+ */
 
 #include <google/protobuf/message.h>
 #include <google/protobuf/text_format.h>

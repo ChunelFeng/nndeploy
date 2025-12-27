@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2025 
+ *   All rights reserved.
+ */
 #ifndef _NNDEPLOY_IR_ONNX_ONNX_INTERPRET_H_
 #define _NNDEPLOY_IR_ONNX_ONNX_INTERPRET_H_
 
@@ -89,6 +93,17 @@ class OnnxInterpret : public Interpret {
   static const onnx::TensorProto *getTensorFromConstantNode(
       const onnx::NodeProto &constant_node);
 
+  // 检查张量是否使用外部数据
+  static bool hasExternalData(const onnx::TensorProto &tensor);
+
+  // 从外部文件加载张量数据
+  void *loadExternalData(const onnx::TensorProto &tensor);
+
+  // 转换带外部数据支持的张量
+  device::Tensor *convertToTensorWithExternalData(const onnx::TensorProto &src);
+  device::Tensor *convertToTensorWithExternalData(const onnx::TensorProto &src,
+                                                  const std::string &name);
+
   virtual base::Status interpret(
       const std::vector<std::string> &model_value,
       const std::vector<ValueDesc> &input = std::vector<ValueDesc>());
@@ -96,6 +111,10 @@ class OnnxInterpret : public Interpret {
  private:
   int target_version_ = 20;
   std::unique_ptr<onnx::ModelProto> onnx_model_;
+  // 模型所在目录，用于定位外部数据文件
+  std::string model_dir_;
+  // 存储外部数据的缓冲区，在模型生命周期内保持有效
+  std::vector<std::shared_ptr<std::vector<char>>> external_data_buffers_;
 };
 
 /**

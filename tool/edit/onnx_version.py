@@ -40,5 +40,6 @@ if __name__ == '__main__':
     onnx_version_converter(src_model_path, target_ir_version, dst_model_path)
 
 
-# python3 onnx_version.py /home/always/huggingface/nndeploy/model_zoo/detect/yolo/yolov8n.onnx --target_version 10
+# python3 onnx_version.py /home/always/huggingface/nndeploy/model_zoo/detect/yolo/yolov8n.onnx --target_ir_version 20
+# python3 onnx_version.py /home/always/github/public/nndeploy/resources/models/qwen/Qwen2-0.5B-Instruct/onnx/llm.onnx --target_ir_version 10
     

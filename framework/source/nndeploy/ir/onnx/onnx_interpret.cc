@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2025 
+ *   All rights reserved.
+ */
 
 
 #include "nndeploy/ir/onnx/onnx_interpret.h"
@@ -485,10 +489,185 @@ const onnx::TensorProto* OnnxInterpret::getTensorFromConstantNode(
   return nullptr;
 }
 
+bool OnnxInterpret::hasExternalData(const onnx::TensorProto& tensor) {
+  return tensor.data_location() ==
+             onnx::TensorProto_DataLocation_EXTERNAL &&
+         tensor.external_data_size() > 0;
+}
+
+void* OnnxInterpret::loadExternalData(const onnx::TensorProto& tensor) {
+  if (!hasExternalData(tensor)) {
+    return nullptr;
+  }
+
+  // 解析外部数据的元信息
+  std::string location;
+  int64_t offset = 0;
+  int64_t length = -1;  // -1 表示读取整个文件
+
+  for (int i = 0; i < tensor.external_data_size(); ++i) {
+    const auto& entry = tensor.external_data(i);
+    if (entry.key() == "location") {
+      location = entry.value();
+    } else if (entry.key() == "offset") {
+      offset = std::stoll(entry.value());
+    } else if (entry.key() == "length") {
+      length = std::stoll(entry.value());
+    }
+  }
+
+  if (location.empty()) {
+    NNDEPLOY_LOGE("External data location is empty for tensor: %s\n",
+                  tensor.name().c_str());
+    return nullptr;
+  }
+
+  // 构建外部数据文件的完整路径
+  std::string external_file_path = model_dir_ + "/" + location;
+
+  // 打开外部数据文件
+  std::ifstream external_stream(external_file_path,
+                                std::ifstream::in | std::ifstream::binary);
+  if (!external_stream.is_open()) {
+    NNDEPLOY_LOGE("Failed to open external data file: %s\n",
+                  external_file_path.c_str());
+    return nullptr;
+  }
+
+  // 如果没有指定长度，计算数据长度
+  if (length < 0) {
+    // 根据张量的shape和数据类型计算数据大小
+    int64_t num_elements = 1;
+    for (int i = 0; i < tensor.dims_size(); ++i) {
+      num_elements *= tensor.dims(i);
+    }
+
+    // 计算每个元素的字节数
+    int bytes_per_element = 0;
+    switch (tensor.data_type()) {
+      case onnx::TensorProto_DataType_FLOAT:
+        bytes_per_element = sizeof(float);
+        break;
+      case onnx::TensorProto_DataType_UINT8:
+      case onnx::TensorProto_DataType_INT8:
+      case onnx::TensorProto_DataType_BOOL:
+        bytes_per_element = 1;
+        break;
+      case onnx::TensorProto_DataType_UINT16:
+      case onnx::TensorProto_DataType_INT16:
+      case onnx::TensorProto_DataType_FLOAT16:
+      case onnx::TensorProto_DataType_BFLOAT16:
+        bytes_per_element = 2;
+        break;
+      case onnx::TensorProto_DataType_INT32:
+      case onnx::TensorProto_DataType_UINT32:
+        bytes_per_element = sizeof(int32_t);
+        break;
+      case onnx::TensorProto_DataType_INT64:
+      case onnx::TensorProto_DataType_UINT64:
+        bytes_per_element = sizeof(int64_t);
+        break;
+      case onnx::TensorProto_DataType_DOUBLE:
+        bytes_per_element = sizeof(double);
+        break;
+      default:
+        NNDEPLOY_LOGE("Unsupported data type for external data: %d\n",
+                      tensor.data_type());
+        return nullptr;
+    }
+    length = num_elements * bytes_per_element;
+  }
+
+  // 创建缓冲区并读取数据
+  auto buffer = std::make_shared<std::vector<char>>(length);
+
+  // 跳转到指定偏移位置
+  external_stream.seekg(offset, std::ios::beg);
+  if (!external_stream.good()) {
+    NNDEPLOY_LOGE("Failed to seek to offset %lld in file: %s\n",
+                  static_cast<long long>(offset), external_file_path.c_str());
+    return nullptr;
+  }
+
+  // 读取数据
+  external_stream.read(buffer->data(), length);
+  if (!external_stream.good() && !external_stream.eof()) {
+    NNDEPLOY_LOGE("Failed to read %lld bytes from file: %s\n",
+                  static_cast<long long>(length), external_file_path.c_str());
+    return nullptr;
+  }
+
+  external_stream.close();
+
+  // 保存缓冲区以确保数据在模型生命周期内有效
+  external_data_buffers_.push_back(buffer);
+
+  NNDEPLOY_LOGE("Loaded external data for tensor '%s' from %s (offset=%lld, length=%lld)\n",
+                tensor.name().c_str(), external_file_path.c_str(),
+                static_cast<long long>(offset), static_cast<long long>(length));
+
+  return buffer->data();
+}
+
+device::Tensor* OnnxInterpret::convertToTensorWithExternalData(
+    const onnx::TensorProto& src) {
+  std::string name = src.name();
+  device::TensorDesc desc;
+  onnx::TensorProto_DataType onnx_data_type =
+      (onnx::TensorProto_DataType)src.data_type();
+  desc.data_type_ = convertToDataType(onnx_data_type);
+  desc.data_format_ = convertToDataFormat(src.dims(), true);
+  desc.shape_ = convertToShape(src.dims());
+
+  void* data_ptr = nullptr;
+  if (hasExternalData(src)) {
+    NNDEPLOY_LOGE("load external data for tensor: %s\n", name.c_str());
+    data_ptr = loadExternalData(src);
+  } else {
+    NNDEPLOY_LOGE("load internal data for tensor: %s\n", name.c_str());
+    data_ptr = getDataFromTensor(src);
+  }
+
+  device::Device* device = device::getDefaultHostDevice();
+  device::Tensor* tensor = new device::Tensor(device, desc, data_ptr, name);
+  return tensor;
+}
+
+device::Tensor* OnnxInterpret::convertToTensorWithExternalData(
+    const onnx::TensorProto& src, const std::string& name) {
+  device::TensorDesc desc;
+  onnx::TensorProto_DataType onnx_data_type =
+      (onnx::TensorProto_DataType)src.data_type();
+  desc.data_type_ = convertToDataType(onnx_data_type);
+  desc.data_format_ = convertToDataFormat(src.dims(), true);
+  desc.shape_ = convertToShape(src.dims());
+
+  void* data_ptr = nullptr;
+  if (hasExternalData(src)) {
+    data_ptr = loadExternalData(src);
+  } else {
+    data_ptr = getDataFromTensor(src);
+  }
+
+  device::Device* device = device::getDefaultHostDevice();
+  device::Tensor* tensor = new device::Tensor(device, desc, data_ptr, name);
+  return tensor;
+}
+
 base::Status OnnxInterpret::interpret(
     const std::vector<std::string>& model_value,
     const std::vector<ValueDesc>& input) {
   base::Status status = base::kStatusCodeOk;
+
+  // 提取模型文件所在目录，用于定位外部数据文件
+  std::string model_path = model_value[0];
+  size_t last_slash = model_path.find_last_of("/\\");
+  if (last_slash != std::string::npos) {
+    model_dir_ = model_path.substr(0, last_slash);
+  } else {
+    model_dir_ = ".";  // 当前目录
+  }
+  NNDEPLOY_LOGI("Model directory: %s\n", model_dir_.c_str());
 
   // 读模型文件
   std::ifstream input_stream(model_value[0],
@@ -525,7 +704,17 @@ base::Status OnnxInterpret::interpret(
           onnx::version_conversion::ConvertVersion(*(this->onnx_model_),
                                                    target_version_);
       // Store the ONNX model
-      std::ofstream output_stream("converted_model.onnx",
+      std::string new_suffix = "_v" + std::to_string(target_version_) + ".onnx";
+      std::string converted_model_path = model_path;
+      size_t pos = converted_model_path.find_last_of(".onnx");
+      if (pos != std::string::npos && pos >= 4) {
+        // 找到.onnx扩展名，替换为新的后缀
+        converted_model_path = converted_model_path.substr(0, pos - 4) + new_suffix;
+      } else {
+        // 如果没有找到.onnx扩展名，直接添加新后缀
+        converted_model_path += new_suffix;
+      }
+      std::ofstream output_stream(converted_model_path,
                                   std::ofstream::out | std::ofstream::binary);
       if (!output_stream.is_open()) {
         NNDEPLOY_LOGE("Failed to open the output file.\n");
@@ -572,22 +761,26 @@ base::Status OnnxInterpret::interpret(
     model_desc_->outputs_.push_back(value_desc);
   }
 
-  // # 解析权重
+  // # 解析权重（支持外部数据）
   const int initializer_size = onnx_graph.initializer_size();
   NNDEPLOY_LOGE("initializer_size = %d\n", initializer_size);
   for (int i = 0; i < initializer_size; ++i) {
     const auto& initializer = onnx_graph.initializer(i);
     std::string name = initializer.name();
-    // NNDEPLOY_LOGI("initializer name = %s\n", name.c_str());
-    // 浅拷贝权重数据
-    device::Tensor* tensor = convertToTensor(initializer);
+    NNDEPLOY_LOGI("initializer name = %s\n", name.c_str());
+    // 使用支持外部数据的方法转换权重
+    device::Tensor* tensor = convertToTensorWithExternalData(initializer);
+    if (tensor == nullptr) {
+      NNDEPLOY_LOGE("Failed to convert initializer: %s\n", name.c_str());
+      return base::kStatusCodeErrorInvalidParam;
+    }
     model_desc_->weights_.insert(std::make_pair(name, tensor));
   }
 
   // # 节点个数
   const int node_size = onnx_graph.node_size();
   // NNDEPLOY_LOGE("node_size = %d\n", node_size);
-  // ## 解析const节点
+  // ## 解析const节点（支持外部数据）
   for (int i = 0; i < node_size; ++i) {
     const auto& onnx_node = onnx_graph.node(i);
     const std::string& node_op_type = onnx_node.op_type();
@@ -595,8 +788,13 @@ base::Status OnnxInterpret::interpret(
       const onnx::TensorProto* initializer =
           getTensorFromConstantNode(onnx_node);
       std::string name = onnx_node.output(0);  // 非常重要
+      // NNDEPLOY_LOGI("constant node name = %s\n", name.c_str());
 
-      device::Tensor* tensor = convertToTensor(*initializer, name);
+      device::Tensor* tensor = convertToTensorWithExternalData(*initializer, name);
+      if (tensor == nullptr) {
+        NNDEPLOY_LOGE("Failed to convert constant node: %s\n", name.c_str());
+        return base::kStatusCodeErrorInvalidParam;
+      }
       model_desc_->weights_.insert(std::make_pair(name, tensor));
     }
   }
