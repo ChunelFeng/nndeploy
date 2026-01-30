@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2025 
+ *   All rights reserved.
+ */
 
 #include "nndeploy/op/op_reshape.h"
 
@@ -30,6 +34,12 @@ base::Status OpReshape::inferShape() {
 
   int target_shape_size = inputs_[1]->getShapeIndex(0);
   int64_t *target_shape_data = (int64_t *)inputs_[1]->getData();
+  if (target_shape_data == nullptr) {
+    NNDEPLOY_LOGE("target_shape_data is nullptr\n");
+    return base::kStatusCodeErrorInvalidValue;
+  }
+  inputs_[0]->print();
+  inputs_[1]->print();
   base::IntVector output_shape;
   for (int i = 0; i < target_shape_size; i++) {
     output_shape.push_back((int)target_shape_data[i]);

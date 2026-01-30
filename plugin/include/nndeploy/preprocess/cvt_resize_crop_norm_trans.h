@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2026 
+ *   All rights reserved.
+ */
 #ifndef NNDEPLOY_PREPROCESS_CVT_RESIZE_CROP_NORM_TRANS_H_
 #define NNDEPLOY_PREPROCESS_CVT_RESIZE_CROP_NORM_TRANS_H_
 

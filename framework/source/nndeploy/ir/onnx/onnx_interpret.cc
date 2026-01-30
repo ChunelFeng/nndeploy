@@ -474,6 +474,9 @@ void* OnnxInterpret::getDataFromTensor(const onnx::TensorProto& tensor) {
   } else {
     NNDEPLOY_LOGE("Tensor(%s) do not have valid data\n", tensor.name().c_str());
   }
+  if (data_ptr == nullptr) {
+    NNDEPLOY_LOGE("getDataFromTensor failed: %s\n", tensor.name().c_str());
+  }
   return data_ptr;
 }
 
@@ -788,12 +791,13 @@ base::Status OnnxInterpret::interpret(
       const onnx::TensorProto* initializer =
           getTensorFromConstantNode(onnx_node);
       std::string name = onnx_node.output(0);  // 非常重要
-      // NNDEPLOY_LOGI("constant node name = %s\n", name.c_str());
-
       device::Tensor* tensor = convertToTensorWithExternalData(*initializer, name);
       if (tensor == nullptr) {
         NNDEPLOY_LOGE("Failed to convert constant node: %s\n", name.c_str());
         return base::kStatusCodeErrorInvalidParam;
+      }
+      if (name == " /Constant_output_0") {
+        tensor->print();
       }
       model_desc_->weights_.insert(std::make_pair(name, tensor));
     }

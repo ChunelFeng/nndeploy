@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2026 
+ *   All rights reserved.
+ */
 #ifndef _NNDEPLOY_DEVICE_ASCEND_CL_DEVICE_H_
 #define _NNDEPLOY_DEVICE_ASCEND_CL_DEVICE_H_
 

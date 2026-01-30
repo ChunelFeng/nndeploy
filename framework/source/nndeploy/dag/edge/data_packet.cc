@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2026 
+ *   All rights reserved.
+ */
 #include "nndeploy/dag/edge/data_packet.h"
 #ifdef ENABLE_NNDEPLOY_PYTHON
 #include <pybind11/pybind11.h>
@@ -235,7 +239,8 @@ base::Status DataPacket::takeDataPacket(DataPacket *packet) {
   if (packet == nullptr) {
     return base::kStatusCodeErrorInvalidParam;
   }
-  if (anything_ != nullptr) {
+  // TODO
+  if (anything_ != nullptr && anything_ != packet->anything_) {
     destory();
   }
   is_external_ = packet->is_external_;

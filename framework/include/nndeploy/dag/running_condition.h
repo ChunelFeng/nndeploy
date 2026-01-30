@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2026 
+ *   All rights reserved.
+ */
 
 #ifndef _NNDEPLOY_DAG_RUNNING_CONDITION__H_
 #define _NNDEPLOY_DAG_RUNNING_CONDITION__H_

@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2026 
+ *   All rights reserved.
+ */
 #include "nndeploy/dag/edge/fixed_edge.h"
 
 #include "nndeploy/dag/node.h"
@@ -93,11 +97,15 @@ device::Tensor *FixedEdge::getGraphOutputTensor() {
 }
 
 base::Status FixedEdge::takeDataPacket(DataPacket *data_packet) {
-  if (data_packet_ != nullptr) {
-    delete data_packet_;
-  }
-  data_packet_ = data_packet;
-  return base::kStatusCodeOk;
+  // if (data_packet_ != nullptr) {
+  //   delete data_packet_;
+  // }
+  // data_packet_ = data_packet;
+  // return base::kStatusCodeOk;
+  base::Status status = data_packet_->takeDataPacket(data_packet);
+  NNDEPLOY_RETURN_ON_NEQ(status, base::kStatusCodeOk,
+                         "DataPacket take error.\n");
+  return status;
 }
 bool FixedEdge::notifyWritten(void *anything) {
   return data_packet_->notifyWritten(anything);

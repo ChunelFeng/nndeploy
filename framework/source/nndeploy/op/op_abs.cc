@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2025 
+ *   All rights reserved.
+ */
 #include "nndeploy/op/op_abs.h"
 
 #include "nndeploy/base/any.h"

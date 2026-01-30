@@ -1,5 +1,10 @@
+/*
+ *   Copyright (c) 2026 
+ *   All rights reserved.
+ */
 
 #include "nndeploy/base/time_profiler.h"
+#include "nndeploy/base/log.h"
 #if defined(_MSC_VER)
 #include <Windows.h>
 #undef min
@@ -124,7 +129,7 @@ void TimeProfiler::print(const std::string &title) {
         return a->order_ < b->order_;
       });
 
-  printf("TimeProfiler: %s\n", title.c_str());
+  NNDEPLOY_LOGE("TimeProfiler: %s\n", title.c_str());
   std::string name = "name";
   int name_size = static_cast<int>(name.size());
   std::string call_times = "call_times";
@@ -168,17 +173,17 @@ void TimeProfiler::print(const std::string &title) {
   int total_len = name_size + 2 + call_times_size + 2 + sum_cost_time_size + 2 +
                   avg_cost_time_size + 2 + gflops_size + 2;
   std::string line(total_len, '-');
-  printf("%s\n", line.c_str());
-  printf("%-*s  %-*s  %-*s  %-*s  %-*s\n", static_cast<int>(name_size),
+  NNDEPLOY_LOGE("%s\n", line.c_str());
+  NNDEPLOY_LOGE("%-*s  %-*s  %-*s  %-*s  %-*s\n", static_cast<int>(name_size),
          name.c_str(), static_cast<int>(call_times_size), call_times.c_str(),
          static_cast<int>(sum_cost_time_size), sum_cost_time.c_str(),
          static_cast<int>(avg_cost_time_size), avg_cost_time.c_str(),
          static_cast<int>(gflops_size), gflops.c_str());
-  printf("%s\n", line.c_str());
+  NNDEPLOY_LOGE("%s\n", line.c_str());
   for (auto &it : records) {
     if (it->type_ == kEnd) {
       std::string name = it->key_;
-      printf("%-*s  %-*d  %-*.3f  %-*.3f  %-*.3f\n",
+      NNDEPLOY_LOGE("%-*s  %-*d  %-*.3f  %-*.3f  %-*.3f\n",
              static_cast<int>(name_size), name.c_str(),
              static_cast<int>(call_times_size), it->call_times_,
              static_cast<int>(sum_cost_time_size),
@@ -188,7 +193,7 @@ void TimeProfiler::print(const std::string &title) {
              static_cast<int>(gflops_size), it->flops_);
     }
   }
-  printf("%s\n", line.c_str());
+  NNDEPLOY_LOGE("%s\n", line.c_str());
 }
 
 void TimeProfiler::printIndex(const std::string &title, uint64_t index) {
@@ -201,7 +206,7 @@ void TimeProfiler::printIndex(const std::string &title, uint64_t index) {
       [](const std::shared_ptr<Record> a, const std::shared_ptr<Record> b) {
         return a->order_ < b->order_;
       });
-  printf("TimeProfiler: %s [index: %zu]\n", title.c_str(), index);
+  NNDEPLOY_LOGE("TimeProfiler: %s [index: %zu]\n", title.c_str(), index);
   std::string name = "name";
   int name_size = static_cast<int>(name.size());
   std::string call_times = "call_times";
@@ -244,19 +249,19 @@ void TimeProfiler::printIndex(const std::string &title, uint64_t index) {
   int total_len = name_size + 2 + call_times_size + 2 + cost_time_size + 2 +
                   avg_cost_time_size + 2 + gflops_size + 2;
   std::string line(total_len, '-');
-  printf("%s\n", line.c_str());
-  printf("%-*s  %-*s  %-*s  %-*s  %-*s\n", static_cast<int>(name_size), "name",
+  NNDEPLOY_LOGE("%s\n", line.c_str());
+  NNDEPLOY_LOGE("%-*s  %-*s  %-*s  %-*s  %-*s\n", static_cast<int>(name_size), "name",
          static_cast<int>(call_times_size), "call_times",
          static_cast<int>(cost_time_size), "cost_time(ms)",
          static_cast<int>(avg_cost_time_size), "avg cost_time(ms)",
          static_cast<int>(gflops_size), "gflops");
-  printf("%s\n", line.c_str());
+  NNDEPLOY_LOGE("%s\n", line.c_str());
   for (auto &it : records) {
     if (it->type_ == kEnd) {
       if (index < it->call_times_) {
         std::string name = it->key_;
         index = index % max_size_;
-        printf(
+        NNDEPLOY_LOGE(
             "%-*s  %-*d  %-*.3f  %-*.3f  %-*.3f\n", static_cast<int>(name_size),
             name.c_str(), static_cast<int>(call_times_size), it->call_times_,
             static_cast<int>(cost_time_size),
@@ -267,7 +272,7 @@ void TimeProfiler::printIndex(const std::string &title, uint64_t index) {
       }
     }
   }
-  printf("%s\n", line.c_str());
+  NNDEPLOY_LOGE("%s\n", line.c_str());
 }
 
 void TimeProfiler::printRemoveWarmup(const std::string &title,
@@ -281,7 +286,7 @@ void TimeProfiler::printRemoveWarmup(const std::string &title,
       [](const std::shared_ptr<Record> a, const std::shared_ptr<Record> b) {
         return a->order_ < b->order_;
       });
-  printf("TimeProfiler: %s, remove warmup %zu\n", title.c_str(), warmup_times);
+  NNDEPLOY_LOGE("TimeProfiler: %s, remove warmup %zu\n", title.c_str(), warmup_times);
   std::string name = "name";
   int name_size = static_cast<int>(name.size());
   std::string call_times = "call_times";
@@ -332,15 +337,15 @@ void TimeProfiler::printRemoveWarmup(const std::string &title,
                   avg_cost_time_size + 2 + avg_cost_time_remove_warmup_size +
                   2 + gflops_size + 2;
   std::string line(total_len, '-');
-  printf("%s\n", line.c_str());
-  printf("%-*s  %-*s  %-*s  %-*s  %-*s  %-*s\n", static_cast<int>(name_size),
+  NNDEPLOY_LOGE("%s\n", line.c_str());
+  NNDEPLOY_LOGE("%-*s  %-*s  %-*s  %-*s  %-*s  %-*s\n", static_cast<int>(name_size),
          "name", static_cast<int>(call_times_size), "call_times",
          static_cast<int>(sum_cost_time_size), "cost_time(ms)",
          static_cast<int>(avg_cost_time_size), "avg cost_time(ms)",
          static_cast<int>(avg_cost_time_remove_warmup_size),
          "avg cost_time(ms)(remove warmup)", static_cast<int>(gflops_size),
          "gflops");
-  printf("%s\n", line.c_str());
+  NNDEPLOY_LOGE("%s\n", line.c_str());
   for (auto &it : records) {
     uint64_t cost_time = 0.0f;
     int valid_count = 0;
@@ -358,7 +363,7 @@ void TimeProfiler::printRemoveWarmup(const std::string &title,
     if (it->type_ == kEnd) {
       if (valid_count > 0) {
         std::string name = it->key_;
-        printf(
+        NNDEPLOY_LOGE(
             "%-*s  %-*d  %-*.3f  %-*.3f  %-*.3f  %-*.3f\n",
             static_cast<int>(name_size), name.c_str(),
             static_cast<int>(call_times_size), it->call_times_,
@@ -372,7 +377,7 @@ void TimeProfiler::printRemoveWarmup(const std::string &title,
       }
     }
   }
-  printf("%s\n", line.c_str());
+  NNDEPLOY_LOGE("%s\n", line.c_str());
 }
 
 TimeProfiler g_time_profiler;

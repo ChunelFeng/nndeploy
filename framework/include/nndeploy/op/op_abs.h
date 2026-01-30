@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2025 
+ *   All rights reserved.
+ */
 #ifndef _NNDEPLOY_OP_OP_ABS_H_
 #define _NNDEPLOY_OP_OP_ABS_H_
 

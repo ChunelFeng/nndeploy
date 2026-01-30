@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2025 
+ *   All rights reserved.
+ */
 
 #include "nndeploy/inference/default/default_inference.h"
 

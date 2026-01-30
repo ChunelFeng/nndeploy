@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2026 
+ *   All rights reserved.
+ */
 #ifndef _NNDEPLOY_DAG_EDGE_H_
 #define _NNDEPLOY_DAG_EDGE_H_
 
@@ -394,6 +398,12 @@ class NNDEPLOY_CC_API Edge : public base::NonCopyable {
   base::Status set(T &t) {
     this->setTypeInfo<T>();
     return this->set(&t, true);
+  }
+
+  template <typename T>
+  base::Status set(T *t, std::function<void(T *)> deleter) {
+    this->setTypeInfo<T>();
+    return abstact_edge_->set<T>(t, deleter);
   }
 
   /**

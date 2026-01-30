@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2026 
+ *   All rights reserved.
+ */
 #ifndef _NNDEPLOY_SEGMENT_SAM_H_
 #define _NNDEPLOY_SEGMENT_SAM_H_
 #include "nndeploy/base/any.h"

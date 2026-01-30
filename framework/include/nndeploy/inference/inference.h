@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2026 
+ *   All rights reserved.
+ */
 
 #ifndef _NNDEPLOY_INFERENCE_INFERENCE_H_
 #define _NNDEPLOY_INFERENCE_INFERENCE_H_

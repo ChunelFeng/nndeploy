@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2025 
+ *   All rights reserved.
+ */
 #include "nndeploy/llm/default_llm_infer.h"
 
 #include "nndeploy/base/any.h"

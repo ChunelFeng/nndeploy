@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2025 
+ *   All rights reserved.
+ */
 
 #ifndef _NNDEPLOY_NET_NET_H_
 #define _NNDEPLOY_NET_NET_H_
@@ -68,7 +72,8 @@ class NNDEPLOY_CC_API Net : public op::Op {
   virtual base::Status inferDataType();
   virtual base::Status inferShape();
   virtual base::Status inferDataFormat();
-
+    
+  bool isDynamicShape();
   virtual base::Status reshape(base::ShapeMap &shape_map);
 
   virtual base::Status preRun();

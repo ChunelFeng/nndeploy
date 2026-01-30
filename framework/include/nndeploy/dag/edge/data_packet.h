@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2026 
+ *   All rights reserved.
+ */
 #ifndef _NNDEPLOY_DAG_EDGE_DATA_PACKET_H_
 #define _NNDEPLOY_DAG_EDGE_DATA_PACKET_H_
 
@@ -88,8 +92,10 @@ class NNDEPLOY_CC_API DataPacket : public base::NonCopyable {
     base::Status status = base::kStatusCodeOk;
     if (anything_ == nullptr) {
       anything_ = (void *)(t);
-    } else {
+    } else if (anything_ != t) {
       destory();
+      anything_ = (void *)(t);
+    } else {
       anything_ = (void *)(t);
     }
     is_external_ = is_external;
@@ -110,6 +116,43 @@ class NNDEPLOY_CC_API DataPacket : public base::NonCopyable {
     }
     written_ = true;
     deleter_ = [](void *d) { delete static_cast<T *>(d); };
+    type_info_ = const_cast<std::type_info *>(&typeid(T));
+    return status;
+  }
+  template <typename T>
+  base::Status set(T *t, std::function<void(T*)> deleter) {
+    base::Status status = base::kStatusCodeOk;
+    if (anything_ == nullptr) {
+      anything_ = (void *)(t);
+    } else if (anything_ != t) {
+      destory();
+      anything_ = (void *)(t);
+    } else {
+      anything_ = (void *)(t);
+    }
+    is_external_ = false;
+    if (std::is_same<T, device::Buffer>::value) {
+      flag_ = EdgeTypeFlag::kBuffer;
+    } else if (std::is_same<T, device::Tensor>::value) {
+      flag_ = EdgeTypeFlag::kTensor;
+    } else if (std::is_base_of<base::Param, T>::value) {
+      flag_ = EdgeTypeFlag::kParam;
+    }
+#ifdef ENABLE_NNDEPLOY_OPENCV
+    else if (std::is_same<T, cv::Mat>::value) {
+      flag_ = EdgeTypeFlag::kCvMat;
+    }
+#endif
+    else {
+      flag_ = EdgeTypeFlag::kAny;
+    }
+    written_ = true;
+    // 更严谨处理deleter捕获，避免悬垂引用，且支持空deleter函数
+    if (deleter) {
+      deleter_ = [deleter](void *d) { deleter(static_cast<T *>(d)); };
+    } else {
+      deleter_ = [](void *d) { delete static_cast<T *>(d); };
+    }
     type_info_ = const_cast<std::type_info *>(&typeid(T));
     return status;
   }
@@ -259,6 +302,15 @@ class NNDEPLOY_CC_API PipelineDataPacket : public DataPacket {
   base::Status set(T *t, bool is_external = true) {
     std::unique_lock<std::mutex> lock(mutex_);
     base::Status status = DataPacket::set(t, is_external);
+    NNDEPLOY_RETURN_ON_NEQ(status, base::kStatusCodeOk,
+                           "DataPacket::set failed!\n");
+    cv_.notify_all();
+    return status;
+  }
+  template <typename T>
+  base::Status set(T *t, std::function<void(T*)> deleter) {
+    std::unique_lock<std::mutex> lock(mutex_);
+    base::Status status = DataPacket::set(t, deleter);
     NNDEPLOY_RETURN_ON_NEQ(status, base::kStatusCodeOk,
                            "DataPacket::set failed!\n");
     cv_.notify_all();

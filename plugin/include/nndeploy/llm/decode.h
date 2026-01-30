@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2026 
+ *   All rights reserved.
+ */
 
 // 将 tokenizer + embedding + infer + sample 封装成一个循环图
 

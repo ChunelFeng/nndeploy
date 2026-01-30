@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2025
+ *   All rights reserved.
+ */
 
 #include "nndeploy/net/net.h"
 
@@ -10,18 +14,30 @@
 namespace nndeploy {
 namespace net {
 
+bool tensorIsDynamicShape(device::Tensor* tensor) {
+  if (tensor->getShape().empty()) {
+    return true;
+  }
+  for (auto iter : tensor->getShape()) {
+    if (iter <= 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
 Net::Net() : op::Op() {}
 
 Net::~Net() {}
 
-base::Status Net::setInterpret(ir::Interpret *interpret) {
+base::Status Net::setInterpret(ir::Interpret* interpret) {
   base::Status status = base::kStatusCodeOk;
   NNDEPLOY_CHECK_PARAM_NULL_RET_STATUS(interpret, "interpret is null!");
   model_desc_ = interpret->getModelDesc();
   return status;
 }
 
-base::Status Net::setModelDesc(ir::ModelDesc *model_desc) {
+base::Status Net::setModelDesc(ir::ModelDesc* model_desc) {
   base::Status status = base::kStatusCodeOk;
   NNDEPLOY_CHECK_PARAM_NULL_RET_STATUS(model_desc, "model_desc is null!");
   model_desc_ = model_desc;
@@ -29,9 +45,9 @@ base::Status Net::setModelDesc(ir::ModelDesc *model_desc) {
 }
 
 base::Status Net::setDynamicShape(bool is_dynamic_shape,
-                                  base::ShapeMap &min_shape,
-                                  base::ShapeMap &opt_shape,
-                                  base::ShapeMap &max_shape) {
+                                  base::ShapeMap& min_shape,
+                                  base::ShapeMap& opt_shape,
+                                  base::ShapeMap& max_shape) {
   base::Status status = base::kStatusCodeOk;
   is_dynamic_shape_ = is_dynamic_shape;
   min_shape_ = min_shape;
@@ -51,9 +67,9 @@ base::Status Net::setTensorPoolMemory(bool is_external) {
   return status;
 }
 
-TensorWrapper *Net::createTensor(const std::string &name, bool is_weight) {
-  device::Tensor *tensor = new device::Tensor(name);
-  TensorWrapper *tensor_wrapper = new TensorWrapper();
+TensorWrapper* Net::createTensor(const std::string& name, bool is_weight) {
+  device::Tensor* tensor = new device::Tensor(name);
+  TensorWrapper* tensor_wrapper = new TensorWrapper();
   tensor_wrapper->is_external_ = false;
   tensor_wrapper->is_weight_ = is_weight;
   tensor_wrapper->tensor_ = tensor;
@@ -62,11 +78,11 @@ TensorWrapper *Net::createTensor(const std::string &name, bool is_weight) {
   return tensor_wrapper;
 }
 
-TensorWrapper *Net::addTensor(device::Tensor *tensor, bool is_external,
+TensorWrapper* Net::addTensor(device::Tensor* tensor, bool is_external,
                               bool is_weight) {
   base::Status status = base::kStatusCodeOk;
   NNDEPLOY_CHECK_PARAM_NULL_RET_NULL(tensor, "tensor is null!");
-  TensorWrapper *tensor_wrapper = new TensorWrapper();
+  TensorWrapper* tensor_wrapper = new TensorWrapper();
   tensor_wrapper->is_external_ = is_external;
   tensor_wrapper->is_weight_ = is_weight;
   tensor_wrapper->tensor_ = tensor;
@@ -75,8 +91,8 @@ TensorWrapper *Net::addTensor(device::Tensor *tensor, bool is_external,
   return tensor_wrapper;
 }
 
-device::Tensor *Net::getTensor(const std::string &name) {
-  for (TensorWrapper *tensor_wrapper : tensor_repository_) {
+device::Tensor* Net::getTensor(const std::string& name) {
+  for (TensorWrapper* tensor_wrapper : tensor_repository_) {
     if (tensor_wrapper->name_ == name) {
       return tensor_wrapper->tensor_;
     }
@@ -84,14 +100,14 @@ device::Tensor *Net::getTensor(const std::string &name) {
   return nullptr;
 }
 
-bool Net::isWeight(const std::string &name) {
+bool Net::isWeight(const std::string& name) {
   if (model_desc_->weights_.find(name) != model_desc_->weights_.end()) {
     return true;
   }
   return false;
 }
-device::Tensor *Net::getWeight(const std::string &weight) {
-  device::Tensor *weight_tensor = nullptr;
+device::Tensor* Net::getWeight(const std::string& weight) {
+  device::Tensor* weight_tensor = nullptr;
   if (model_desc_->weights_.find(weight) != model_desc_->weights_.end()) {
     weight_tensor = model_desc_->weights_[weight];
     model_desc_->weights_[weight] = nullptr;
@@ -101,26 +117,26 @@ device::Tensor *Net::getWeight(const std::string &weight) {
   return weight_tensor;
 }
 
-op::Op *Net::createOp(base::DeviceType device_type, const std::string &name,
+op::Op* Net::createOp(base::DeviceType device_type, const std::string& name,
                       ir::OpType op_type,
                       std::initializer_list<std::string> inputs,
                       std::initializer_list<std::string> outputs) {
   // TODO: 这里命名与namespace op下的createOp冲突
   // 必须使用op::  否则递归了
-  op::Op *op = op::createOp(device_type, name, op_type, inputs, outputs);
+  op::Op* op = op::createOp(device_type, name, op_type, inputs, outputs);
   if (op == nullptr) {
     NNDEPLOY_LOGE("Failed to create Op: %s\n", name.c_str());
     return nullptr;
   }
-  OpWrapper *op_wrapper = new OpWrapper();
+  OpWrapper* op_wrapper = new OpWrapper();
   op_wrapper->is_external_ = false;
   op_wrapper->op_ = op;
   op_wrapper->name_ = name;
   for (auto input : inputs) {
-    TensorWrapper *input_wrapper = findTensorWrapper(tensor_repository_, input);
+    TensorWrapper* input_wrapper = findTensorWrapper(tensor_repository_, input);
     if (input_wrapper == nullptr) {
       if (isWeight(input)) {
-        device::Tensor *weight = getWeight(input);
+        device::Tensor* weight = getWeight(input);
         // input_wrapper = new TensorWrapper();
         // input_wrapper->is_external_ = false;
         // input_wrapper->is_weight_ = true;
@@ -140,7 +156,7 @@ op::Op *Net::createOp(base::DeviceType device_type, const std::string &name,
     insertUnique(input_wrapper->consumers_, op_wrapper);
   }
   for (auto output : outputs) {
-    TensorWrapper *output_wrapper =
+    TensorWrapper* output_wrapper =
         findTensorWrapper(tensor_repository_, output);
     if (output_wrapper == nullptr) {
       output_wrapper = this->createTensor(output);
@@ -157,25 +173,25 @@ op::Op *Net::createOp(base::DeviceType device_type, const std::string &name,
   op_repository_.emplace_back(op_wrapper);
   return op;
 }
-op::Op *Net::createOp(base::DeviceType device_type, const std::string &name,
-                      ir::OpType op_type, std::vector<std::string> &inputs,
-                      std::vector<std::string> &outputs) {
-  op::Op *op = op::createOp(device_type, name, op_type, inputs, outputs);
+op::Op* Net::createOp(base::DeviceType device_type, const std::string& name,
+                      ir::OpType op_type, std::vector<std::string>& inputs,
+                      std::vector<std::string>& outputs) {
+  op::Op* op = op::createOp(device_type, name, op_type, inputs, outputs);
   if (op == nullptr) {
     NNDEPLOY_LOGE("Failed to create Op[name:%s, type:%s, device_type:%s]\n",
                   name.c_str(), ir::opTypeToString(op_type).c_str(),
                   base::deviceTypeToString(device_type).c_str());
     return nullptr;
   }
-  OpWrapper *op_wrapper = new OpWrapper();
+  OpWrapper* op_wrapper = new OpWrapper();
   op_wrapper->is_external_ = false;
   op_wrapper->op_ = op;
   op_wrapper->name_ = name;
   for (auto input : inputs) {
-    TensorWrapper *input_wrapper = findTensorWrapper(tensor_repository_, input);
+    TensorWrapper* input_wrapper = findTensorWrapper(tensor_repository_, input);
     if (input_wrapper == nullptr) {
       if (isWeight(input)) {
-        device::Tensor *weight = getWeight(input);
+        device::Tensor* weight = getWeight(input);
         // input_wrapper = new TensorWrapper();
         // input_wrapper->is_external_ = false;
         // input_wrapper->is_weight_ = true;
@@ -195,7 +211,7 @@ op::Op *Net::createOp(base::DeviceType device_type, const std::string &name,
     insertUnique(input_wrapper->consumers_, op_wrapper);
   }
   for (auto output : outputs) {
-    TensorWrapper *output_wrapper =
+    TensorWrapper* output_wrapper =
         findTensorWrapper(tensor_repository_, output);
     if (output_wrapper == nullptr) {
       output_wrapper = this->createTensor(output);
@@ -213,15 +229,15 @@ op::Op *Net::createOp(base::DeviceType device_type, const std::string &name,
   return op;
 }
 
-base::Status Net::addNet(Net *net, bool is_external) {
+base::Status Net::addNet(Net* net, bool is_external) {
   base::Status status = base::kStatusCodeOk;
   NNDEPLOY_CHECK_PARAM_NULL_RET_STATUS(net, "op is null!");
-  OpWrapper *op_wrapper = new OpWrapper();
+  OpWrapper* op_wrapper = new OpWrapper();
   op_wrapper->is_external_ = is_external;
   op_wrapper->op_ = net;
   op_wrapper->name_ = net->getName();
   for (auto input : net->getAllInput()) {
-    TensorWrapper *input_wrapper = findTensorWrapper(tensor_repository_, input);
+    TensorWrapper* input_wrapper = findTensorWrapper(tensor_repository_, input);
     if (input_wrapper == nullptr) {
       input_wrapper = this->addTensor(input, is_external);  // todo
     }
@@ -229,7 +245,7 @@ base::Status Net::addNet(Net *net, bool is_external) {
     insertUnique(input_wrapper->consumers_, op_wrapper);
   }
   for (auto output : net->getAllOutput()) {
-    TensorWrapper *output_wrapper =
+    TensorWrapper* output_wrapper =
         findTensorWrapper(tensor_repository_, output);
     if (output_wrapper == nullptr) {
       output_wrapper = this->addTensor(output, is_external);
@@ -242,18 +258,18 @@ base::Status Net::addNet(Net *net, bool is_external) {
   return status;
 }
 
-base::Status Net::setOpParam(const std::string &op_name,
+base::Status Net::setOpParam(const std::string& op_name,
                              std::shared_ptr<base::Param> param) {
   base::Status status = base::kStatusCodeOk;
   NNDEPLOY_CHECK_PARAM_NULL_RET_STATUS(param, "param is null!");
-  OpWrapper *op_wrapper = findOpWrapper(op_repository_, op_name);
+  OpWrapper* op_wrapper = findOpWrapper(op_repository_, op_name);
   NNDEPLOY_CHECK_PARAM_NULL_RET_STATUS(op_wrapper, "op_wrapper is null!");
   status = op_wrapper->op_->setParam(param);
   return status;
 }
 
-std::shared_ptr<base::Param> Net::getOpParam(const std::string &op_name) {
-  OpWrapper *op_wrapper = findOpWrapper(op_repository_, op_name);
+std::shared_ptr<base::Param> Net::getOpParam(const std::string& op_name) {
+  OpWrapper* op_wrapper = findOpWrapper(op_repository_, op_name);
   NNDEPLOY_CHECK_PARAM_NULL_RET_NULL(op_wrapper, "op_wrapper is null!");
   return op_wrapper->op_->getParam();
 }
@@ -273,8 +289,6 @@ base::Status Net::init() {
   status = inferDataType();
   NNDEPLOY_RETURN_ON_NEQ(status, base::kStatusCodeOk, "inferDataType failed!");
 
-
-
   status = inferShape();
   NNDEPLOY_RETURN_ON_NEQ(status, base::kStatusCodeOk, "inferShape failed!");
 
@@ -284,13 +298,11 @@ base::Status Net::init() {
 
   // 即使是设备相关的图优化，也可以放在优化器中做
   // 经过这一次图优化之后
-  if (net_opt_flag_) {
-    status = optimizer();
-    NNDEPLOY_RETURN_ON_NEQ(status, base::kStatusCodeOk,
-                           "graph optimizer failed!");
-  }
-
-  
+  // if (net_opt_flag_) {
+  //   status = optimizer();
+  //   NNDEPLOY_RETURN_ON_NEQ(status, base::kStatusCodeOk,
+  //                          "graph optimizer failed!");
+  // }
 
   status = this->runtime();
   NNDEPLOY_RETURN_ON_NEQ(status, base::kStatusCodeOk, "graph runtime failed!");
@@ -364,8 +376,9 @@ base::Status Net::inferShape() {
   base::Status status = base::kStatusCodeOk;
   bool is_infer_shape = true;
   for (auto input : inputs_) {
-    if (input->getShape().empty()) {
+    if (tensorIsDynamicShape(input)) {
       is_infer_shape = false;
+      is_dynamic_shape_ = true;
       break;
     }
   }
@@ -407,7 +420,12 @@ base::Status Net::inferDataFormat() {
   }
   return status;
 };
-base::Status Net::reshape(base::ShapeMap &shape_map) {
+
+bool Net::isDynamicShape() {
+  return is_dynamic_shape_;
+}
+
+base::Status Net::reshape(base::ShapeMap& shape_map) {
   base::Status status = base::kStatusCodeOk;
 
   // NNDEPLOY_LOGI("###########################\n");
@@ -430,7 +448,7 @@ base::Status Net::reshape(base::ShapeMap &shape_map) {
 };
 
 int64_t Net::getMemorySize() { return runtime_->getMemorySize(); }
-base::Status Net::setMemory(device::Buffer *buffer) {
+base::Status Net::setMemory(device::Buffer* buffer) {
   return runtime_->setMemory(buffer);
 }
 
@@ -552,7 +570,7 @@ base::Status Net::postRun() {
   return status;
 };
 
-base::Status Net::dump(std::ostream &oss) {
+base::Status Net::dump(std::ostream& oss) {
   base::Status status = dumpNet(tensor_repository_, op_repository_, inputs_,
                                 outputs_, op_desc_.name_, oss);
   NNDEPLOY_RETURN_ON_NEQ(status, base::kStatusCodeOk, "dump failed!");
@@ -599,7 +617,7 @@ base::Status Net::construct() {
 
   // 输入的构建
   for (auto input : model_desc_->inputs_) {
-    TensorWrapper *input_wrapper =
+    TensorWrapper* input_wrapper =
         findTensorWrapper(tensor_repository_, input->name_);
     if (input_wrapper == nullptr) {
       input_wrapper = this->createTensor(input->name_);
@@ -633,11 +651,14 @@ base::Status Net::construct() {
       }
     }
     input_wrapper->tensor_->reshape(shape);
+    if (tensorIsDynamicShape(input_wrapper->tensor_)) {
+      is_dynamic_shape_ = true;
+    }
   }
 
   // 输出的构建
   for (auto output : model_desc_->outputs_) {
-    TensorWrapper *output_wrapper =
+    TensorWrapper* output_wrapper =
         findTensorWrapper(tensor_repository_, output->name_);
     if (output_wrapper == nullptr) {
       output_wrapper = this->createTensor(output->name_);
@@ -670,13 +691,13 @@ base::Status Net::construct() {
   // NNDEPLOY_LOGI("Mark Predecessors And Successors Phase!\n");
   // NNDEPLOY_LOGI("####################\n");
   for (auto op_wrapper : op_repository_) {
-    Op *op = op_wrapper->op_;
+    Op* op = op_wrapper->op_;
     op->setPrecisionType(precision_type_);
     op->setParallelType(parallel_type);
     op->setInnerFlag(true);
-    std::vector<device::Tensor *> inputs = op->getAllInput();
+    std::vector<device::Tensor*> inputs = op->getAllInput();
     for (auto input : inputs) {
-      TensorWrapper *input_wrapper =
+      TensorWrapper* input_wrapper =
           findTensorWrapper(tensor_repository_, input);
       NNDEPLOY_CHECK_PARAM_NULL_RET_STATUS(input_wrapper,
                                            "input_wrapper is null!");
@@ -685,9 +706,9 @@ base::Status Net::construct() {
         insertUnique(op_wrapper->predecessors_, producer);
       }
     }
-    std::vector<device::Tensor *> outputs = op->getAllOutput();
+    std::vector<device::Tensor*> outputs = op->getAllOutput();
     for (auto output : outputs) {
-      TensorWrapper *output_wrapper =
+      TensorWrapper* output_wrapper =
           findTensorWrapper(tensor_repository_, output);
       NNDEPLOY_CHECK_PARAM_NULL_RET_STATUS(output_wrapper,
                                            "output_wrapper is null!");
@@ -709,11 +730,11 @@ base::Status Net::construct() {
   // NNDEPLOY_LOGI("construct tensor\n");
   // NNDEPLOY_LOGI("##############\n");
   for (auto tensor_wrapper : tensor_repository_) {
-    std::vector<Op *> producers;
+    std::vector<Op*> producers;
     for (auto producer : tensor_wrapper->producers_) {
       producers.emplace_back(producer->op_);
     }
-    std::vector<Op *> consumers;
+    std::vector<Op*> consumers;
     for (auto consumer : tensor_wrapper->consumers_) {
       consumers.emplace_back(consumer->op_);
     }
@@ -734,7 +755,7 @@ base::Status Net::construct() {
   }
 
   // 拓扑排序
-  std::vector<OpWrapper *> topo_op_repository;
+  std::vector<OpWrapper*> topo_op_repository;
   status = topoSortDFS(op_repository_, topo_op_repository);
   NNDEPLOY_RETURN_ON_NEQ(status, base::kStatusCodeOk, "topoSortDFS failed!");
   op_repository_.clear();
@@ -823,11 +844,11 @@ base::Status Net::setWorkers(int worker_num,
   return base::kStatusCodeOk;
 }
 
-base::Status Net::copyToInputTensor(device::Tensor *tensor) {
+base::Status Net::copyToInputTensor(device::Tensor* tensor) {
   return runtime_->copyToInputTensor(tensor);
 }
 
-device::Tensor *Net::getOutputTensorAfterRun(const std::string &name,
+device::Tensor* Net::getOutputTensorAfterRun(const std::string& name,
                                              base::DeviceType device_type,
                                              bool is_copy,
                                              base::DataFormat data_format) {
@@ -835,9 +856,9 @@ device::Tensor *Net::getOutputTensorAfterRun(const std::string &name,
                                            data_format);
 }
 
-Net *createNet(ir::ModelDesc *model_desc, base::DeviceType device_type,
+Net* createNet(ir::ModelDesc* model_desc, base::DeviceType device_type,
                base::PrecisionType precision_type) {
-  Net *net = new Net();
+  Net* net = new Net();
   NNDEPLOY_CHECK_PARAM_NULL_RET_NULL(net, "net is null!");
   net->setDeviceType(device_type);
   net->setPrecisionType(precision_type);

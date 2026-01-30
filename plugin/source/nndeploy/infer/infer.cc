@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2025 
+ *   All rights reserved.
+ */
 
 #include "nndeploy/infer/infer.h"
 
@@ -329,6 +333,19 @@ base::Status Infer::run() {
         name = input_type_info_[i]->getEdgeName();
       }
       shape_map[name] = tensors[i]->getShape();
+    }
+    // debug：print shape_map
+    NNDEPLOY_LOGI("shape_map: \n");
+    for (auto iter : shape_map) {
+      std::string shape_str = "[";
+      for (int i = 0; i < iter.second.size(); i++) {
+        shape_str += std::to_string(iter.second[i]);
+        if (i < iter.second.size() - 1) {
+          shape_str += ", ";
+        }
+      }
+      shape_str += "]";
+      NNDEPLOY_LOGI("shape_map[%s] = %s\n", iter.first.c_str(), shape_str.c_str());
     }
     inference_->reshape(shape_map);
   }

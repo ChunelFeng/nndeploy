@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2026 
+ *   All rights reserved.
+ */
 #ifndef _NNDEPLOY_BASIC_END_H_
 #define _NNDEPLOY_BASIC_END_H_
 

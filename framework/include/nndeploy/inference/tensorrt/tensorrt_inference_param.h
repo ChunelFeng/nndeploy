@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2026 
+ *   All rights reserved.
+ */
 
 #ifndef _NNDEPLOY_INFERENCE_TENSORRT_TENSORRT_INFERENCE_PARAM_H_
 #define _NNDEPLOY_INFERENCE_TENSORRT_TENSORRT_INFERENCE_PARAM_H_

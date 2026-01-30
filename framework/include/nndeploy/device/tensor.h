@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2025 
+ *   All rights reserved.
+ */
 
 #ifndef _NNDEPLOY_DEVICE_TENSOR_H_
 #define _NNDEPLOY_DEVICE_TENSOR_H_

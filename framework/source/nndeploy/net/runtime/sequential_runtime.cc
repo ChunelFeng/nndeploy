@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2025 
+ *   All rights reserved.
+ */
 
 
 #include "nndeploy/net/runtime/sequential_runtime.h"
