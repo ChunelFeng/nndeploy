@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2026 
- *   All rights reserved.
- */
+
 #include "nndeploy/dag/edge/pipeline_edge.h"
 
 #include <algorithm>

@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2026 
- *   All rights reserved.
- */
+
 #ifndef _NNDEPLOY_DAG_EDGE_FIXED_EDGE_H_
 #define _NNDEPLOY_DAG_EDGE_FIXED_EDGE_H_
 

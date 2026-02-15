@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2026 
- *   All rights reserved.
- */
+
 
 #ifndef _NNDEPLOY_INFER_INFER_H_
 #define _NNDEPLOY_INFER_INFER_H_

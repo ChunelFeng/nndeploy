@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2026 
- *   All rights reserved.
- */
+
 
 #include "nndeploy/dag/executor/parallel_pipeline_executor.h"
 

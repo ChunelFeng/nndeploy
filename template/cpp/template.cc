@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2026 
- *   All rights reserved.
- */
+
 #include "template.h"
 
 namespace nndeploy {

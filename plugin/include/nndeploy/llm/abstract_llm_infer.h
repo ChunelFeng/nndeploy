@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2026 
- *   All rights reserved.
- */
+
 
 #ifndef _NNDEPLOY_LLM_ABSTRACT_LLM_INFER_H_
 #define _NNDEPLOY_LLM_ABSTRACT_LLM_INFER_H_

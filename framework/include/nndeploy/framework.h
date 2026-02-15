@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2026 
- *   All rights reserved.
- */
+
 
 #ifndef _NNDEPLOY_FRAMEWORK_H_
 #define _NNDEPLOY_FRAMEWORK_H_

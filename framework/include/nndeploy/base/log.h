@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2026 
- *   All rights reserved.
- */
+
 
 /**
  * @TODO：要不要去使用一个第三方的日志库，比如sdplog

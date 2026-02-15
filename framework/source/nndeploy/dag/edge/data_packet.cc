@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2026 
- *   All rights reserved.
- */
+
 #include "nndeploy/dag/edge/data_packet.h"
 #ifdef ENABLE_NNDEPLOY_PYTHON
 #include <pybind11/pybind11.h>

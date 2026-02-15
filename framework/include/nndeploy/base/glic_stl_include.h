@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2026 
- *   All rights reserved.
- */
+
 
 #ifndef _NNDEPLOY_BASE_GLIBC_STL_INCLUDE_H_
 #define _NNDEPLOY_BASE_GLIBC_STL_INCLUDE_H_

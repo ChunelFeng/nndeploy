@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2026 
- *   All rights reserved.
- */
+
 #ifndef _NNDEPLOY_TEMPLATE_TEMPLATE_H_
 #define _NNDEPLOY_TEMPLATE_TEMPLATE_H_
 

@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2026 
- *   All rights reserved.
- */
+
 #ifndef _NNDEPLOY_PREPROCESS_CVT_NORM_TRANS_H_
 #define _NNDEPLOY_PREPROCESS_CVT_NORM_TRANS_H_
 
