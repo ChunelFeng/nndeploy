@@ -18,7 +18,6 @@
  * 1. 是否可以共用 TokenizerPraram 类
  * 2. TokenizerEncodeMnn和TokenizerDecodeMnn共用一份词表文件，如何优化？
  */
-
 #ifndef _NNDEPLOY_TOKENIZER_TOKENIZER_MNN_TOKENIZER_MNN_H_
 #define _NNDEPLOY_TOKENIZER_TOKENIZER_MNN_TOKENIZER_MNN_H_
 

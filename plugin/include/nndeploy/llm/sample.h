@@ -17,7 +17,6 @@
  *    在另外的文件种实现mnn代码的功能，这两个作为门面类，调用函数
  *
  */
-
 #ifndef _NNDEPLOY_LLM_SAMPLE_H_
 #define _NNDEPLOY_LLM_SAMPLE_H_
 

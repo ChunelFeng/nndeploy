@@ -1,7 +1,6 @@
 
 
 // 将 tokenizer + embedding + infer + sample 封装成一个循环图
-
 #ifndef _NNDEPLOY_LLM_DECODE_H_
 #define _NNDEPLOY_LLM_DECODE_H_
 

@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2025 
- *   All rights reserved.
- */
+
 #include "nndeploy/device/cpu/cpu_device.h"
 
 #include "nndeploy/device/buffer.h"

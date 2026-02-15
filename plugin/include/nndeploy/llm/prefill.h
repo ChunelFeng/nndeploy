@@ -1,5 +1,4 @@
 // 将tokenizer + embedding + infer + sample 封装成一个图
-
 #ifndef _NNDEPLOY_LLM_PREFILL_H_
 #define _NNDEPLOY_LLM_PREFILL_H_
 

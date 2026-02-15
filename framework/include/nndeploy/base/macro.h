@@ -88,34 +88,27 @@
 #define NNDEPLOY_UP_DIV(x, y) \
   ((static_cast<int>(x) + static_cast<int>(y) - (1)) / static_cast<int>(y))
 #endif
-
 #ifndef NNDEPLOY_ROUND_UP
 #define NNDEPLOY_ROUND_UP(x, y)                                              \
   ((static_cast<int>(x) + static_cast<int>(y) - (1)) / static_cast<int>(y) * \
    static_cast<int>(y))
 #endif
-
 #ifndef NNDEPLOY_ALIGN_UP4
 #define NNDEPLOY_ALIGN_UP4(x) NNDEPLOY_ROUND_UP((x), 4)
 #endif
-
 #ifndef NNDEPLOY_ALIGN_UP8
 #define NNDEPLOY_ALIGN_UP8(x) NNDEPLOY_ROUND_UP((x), 8)
 #endif
-
 #ifndef NNDEPLOY_ALIGN_PTR
 #define NNDEPLOY_ALIGN_PTR(x, y) \
   (void *)(x & ~static_cast<size_t>(NNDEPLOY_ABS(y) - 1))
 #endif
-
 #ifndef NNDEPLOY_MIN
 #define NNDEPLOY_MIN(x, y) ((x) < (y) ? (x) : (y))
 #endif
-
 #ifndef NNDEPLOY_MAX
 #define NNDEPLOY_MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
-
 #ifndef NNDEPLOY_ABS
 #define NNDEPLOY_ABS(x) ((x) > (0) ? (x) : (-(x)))
 #endif

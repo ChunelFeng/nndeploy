@@ -1,7 +1,3 @@
-/*
- *   Copyright (c) 2025 
- *   All rights reserved.
- */
 
 #ifndef _NNDEPLOY_DAG_NODE_H_
 #define _NNDEPLOY_DAG_NODE_H_

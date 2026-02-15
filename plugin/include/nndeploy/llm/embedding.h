@@ -24,7 +24,6 @@
  * 2. Embedding在prifill和decode阶段共用一份embedding权重，如何优化？
  * 3. 如何实现diskembedding
  */
-
 #ifndef _NNDEPLOY_LLM_EMBEDDING_H_
 #define _NNDEPLOY_LLM_EMBEDDING_H_
 

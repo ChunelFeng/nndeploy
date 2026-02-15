@@ -7,7 +7,6 @@
  * 1. 将genPastKeyValue、genAttentionMask、genPositionIds挪到llm_infer种实现
  * 2. 如何一份模型，给prifill和decode两个阶段使用
  */
-
 #ifndef _NNDEPLOY_LLM_LLM_INFER_H_
 #define _NNDEPLOY_LLM_LLM_INFER_H_
 

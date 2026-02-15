@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2025 
- *   All rights reserved.
- */
+
 #include "nndeploy/op/op_cast.h"
 
 #include "nndeploy/base/any.h"

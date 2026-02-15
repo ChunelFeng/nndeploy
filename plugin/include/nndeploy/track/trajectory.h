@@ -19,7 +19,6 @@
 // ----------------------------------------------------------------------
 // Modified by nndeploy on 2025-05-30
 // ----------------------------------------------------------------------
-
 #ifndef _NNDEPLOY_TRACK_TRAJECTORY_H_
 #define _NNDEPLOY_TRACK_TRAJECTORY_H_
 

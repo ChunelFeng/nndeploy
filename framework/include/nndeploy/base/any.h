@@ -2,7 +2,6 @@
  * \file Any.h
  * \brief ref dmlc-core/include/dmlc/Any.h
  */
-
 #ifndef _NNDEPLOY_BASE_Any_H_
 #define _NNDEPLOY_BASE_Any_H_
 

@@ -155,7 +155,6 @@ class NNDEPLOY_CC_API Maybe {
       assert(res);                             \
     }                                          \
   }
-
 #ifndef _DEBUG
 #undef NNDEPLOY_LOGDT
 #undef NNDEPLOY_LOGD

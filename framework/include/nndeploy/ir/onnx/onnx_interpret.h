@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2025 
- *   All rights reserved.
- */
+
 #ifndef _NNDEPLOY_IR_ONNX_ONNX_INTERPRET_H_
 #define _NNDEPLOY_IR_ONNX_ONNX_INTERPRET_H_
 

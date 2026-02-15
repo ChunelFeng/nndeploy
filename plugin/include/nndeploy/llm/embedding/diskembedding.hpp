@@ -4,7 +4,6 @@
 //  Created by MNN on 2025/04/08.
 //  Copyright © 2018, Alibaba Group Holding Limited
 //
-
 #ifndef DISKEMBEDDING_hpp
 #define DISKEMBEDDING_hpp
 

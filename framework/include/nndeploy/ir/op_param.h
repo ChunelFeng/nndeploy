@@ -1,7 +1,3 @@
-/*
- *   Copyright (c) 2025 
- *   All rights reserved.
- */
 
 #ifndef _NNDEPLOY_IR_OP_PARAM_H_
 #define _NNDEPLOY_IR_OP_PARAM_H_

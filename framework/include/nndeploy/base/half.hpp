@@ -24,7 +24,6 @@
 
 /// \file
 /// Main header file for half precision functionality.
-
 #ifndef HALF_HALF_HPP
 #define HALF_HALF_HPP
 
@@ -246,7 +245,6 @@
 /// addition. Due to the internal single-precision implementation of all
 /// arithmetic operations, this is in fact always the case.
 #define FP_FAST_FMAH 1
-
 #ifndef FP_ILOGB0
 #define FP_ILOGB0 INT_MIN
 #endif

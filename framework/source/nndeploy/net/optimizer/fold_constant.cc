@@ -1,7 +1,4 @@
-/*
- *   Copyright (c) 2025 
- *   All rights reserved.
- */
+
 #include "nndeploy/net/optimizer/fold_constant.h"
 
 #include "nndeploy/ir/op_param.h"

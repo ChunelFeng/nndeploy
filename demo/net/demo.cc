@@ -1,5 +1,4 @@
 /**
-
  * nndeploy Net Demo:
  * Demonstrates the basic functionality and usage of nndeploy Net (Default
  inference framework)
@@ -15,7 +14,7 @@
 
 using namespace nndeploy;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   gflags::ParseCommandLineNonHelpFlags(&argc, &argv, true);
   if (demo::FLAGS_usage) {
     demo::showUsage();
@@ -44,18 +43,21 @@ int main(int argc, char *argv[]) {
   net->setInterpret(interpret.get());
 
   base::DeviceType device_type;
-  // device_type.code_ = base::kDeviceTypeCodeCpu;
-  device_type.code_ = base::kDeviceTypeCodeAscendCL;
+  device_type.code_ = base::kDeviceTypeCodeCpu;
+  // device_type.code_ = base::kDeviceTypeCodeAscendCL;
   device_type.device_id_ = 0;
   net->setDeviceType(device_type);
 
   net->init();
+  net->reshape({{"input_ids", {1, 8, 896}},
+                {"attention_mask", {1, 1, 8, 8}},
+                {"position_ids", {1, 8}}});
 
   net->dump(std::cout);
 
-  net->preRun();
-  net->run();
-  net->postRun();
+  // net->preRun();
+  // net->run();
+  // net->postRun();
 
   net->deinit();
 

@@ -1,7 +1,3 @@
-/*
- *   Copyright (c) 2025 
- *   All rights reserved.
- */
 
 #ifndef _NNDEPLOY_BASE_HALF_H_
 #define _NNDEPLOY_BASE_HALF_H_

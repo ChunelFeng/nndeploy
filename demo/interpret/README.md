@@ -45,6 +45,8 @@ export LD_LIBRARY_PATH=/home/resource/third_party/onnxruntime-linux-aarch64-1.20
 # qwen2.5b
 # 分割模型
 ./nndeploy_demo_interpret --model_type kModelTypeOnnx --model_value /home/always/github/public/nndeploy/resources/models/qwen/Qwen2-0.5B-Instruct/onnx/llm.onnx --model_json llm.onnx.json --model_safetensors llm.onnx.safetensors
+
+./nndeploy_demo_interpret --model_type kModelTypeOnnx --model_value /home/always/github/public/nndeploy/resources/models/qwen/Qwen2-0.5B-Instruct/onnx/llm_v19_v20_v20.onnx --model_json llm.onnx.json --model_safetensors llm.onnx.safetensors
 ```
 
 #### 输出

@@ -1,7 +1,3 @@
-/*
- *   Copyright (c) 2025 
- *   All rights reserved.
- */
 
 #ifndef _NNDEPLOY_NET_NET_H_
 #define _NNDEPLOY_NET_NET_H_

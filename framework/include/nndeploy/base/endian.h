@@ -2,7 +2,6 @@
  * \file endian.h
  * \brief ref dmlc-core/include/dmlc/endian.h
  */
-
 #ifndef _NNDEPLOY_BASE_ENDIAN_H_
 #define _NNDEPLOY_BASE_ENDIAN_H_
 
