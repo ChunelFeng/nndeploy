@@ -139,6 +139,8 @@ base::Status SequentialRuntime::reshape(base::ShapeMap &shape_map) {
               }
             }
           }
+        } else {
+          is_reallocate = true;
         }
       } else {
         is_reallocate = true;
@@ -166,11 +168,12 @@ base::Status SequentialRuntime::reshape(base::ShapeMap &shape_map) {
     for (auto iter : op_repository_) {
       status = iter->op_->inferShape();
       if (status != base::kStatusCodeOk) {
-        NNDEPLOY_LOGE("Node %s init failed\n", iter->op_->getName().c_str());
+        NNDEPLOY_LOGE("Node %s inferShape failed\n", iter->op_->getName().c_str());
         return status;
       }
     }
     if (is_reallocate) {
+      NNDEPLOY_LOGI("tensor_pool_ reallocate\n");
       status = tensor_pool_->allocate();
       if (status != base::kStatusCodeOk) {
         NNDEPLOY_LOGE("tensor_pool_ allocate failed\n");

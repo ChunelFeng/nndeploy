@@ -28,7 +28,7 @@ base::Status OpReshape::inferShape() {
   auto param = dynamic_cast<ir::ReshapeParam *>(op_desc_.op_param_.get());
   NNDEPLOY_CHECK_PARAM_NULL_RET_STATUS(param, "op_desc_.op_param_ is nullptr");
   int allowzero = param->allowzero_;
-
+  inputs_[1]->print();
   int target_shape_size = inputs_[1]->getShapeIndex(0);
   int64_t *target_shape_data = (int64_t *)inputs_[1]->getData();
   if (target_shape_data == nullptr) {

@@ -437,7 +437,7 @@ base::Status Net::reshape(base::ShapeMap& shape_map) {
   // NNDEPLOY_LOGI("Op run Phase!\n");
   // NNDEPLOY_LOGI("#######################\n");
   status = runtime_->reshape(shape_map);
-  NNDEPLOY_RETURN_ON_NEQ(status, base::kStatusCodeOk, "runtime preRun failed!");
+  NNDEPLOY_RETURN_ON_NEQ(status, base::kStatusCodeOk, "runtime reshape failed!");
 
   // NNDEPLOY_LOGI("###########################\n");
   // NNDEPLOY_LOGI("setRunningFlag false!\n");

@@ -5,6 +5,7 @@
  */
 
 #include "flag.h"
+#include "nndeploy/base/status.h"
 #include "nndeploy/ir/default_interpret.h"
 #include "nndeploy/ir/interpret.h"
 #include "nndeploy/ir/ir.h"
@@ -49,11 +50,19 @@ int main(int argc, char* argv[]) {
   net->setDeviceType(device_type);
 
   net->init();
-  net->reshape({{"input_ids", {1, 8, 896}},
-                {"attention_mask", {1, 1, 8, 8}},
-                {"position_ids", {1, 8}}});
+  std::map<std::string, std::vector<int>> shape_map = {
+    {"input_ids", {8, 1, 896}},
+    {"attention_mask", {1, 1, 8, 8}},
+    {"position_ids", {1, 8}},
+    {"past_key_values", {24,2,1,0,2,64}}
+  };
+  status = net->reshape(shape_map);
+  if (status != base::kStatusCodeOk) {
+    NNDEPLOY_LOGE("tensor_pool_ allocate failed\n");
+    return -1;
+  }
 
-  net->dump(std::cout);
+  // net->dump(std::cout);
 
   // net->preRun();
   // net->run();
