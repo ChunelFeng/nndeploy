@@ -266,10 +266,10 @@ base::Status Tensor::reshape(base::IntVector shape) {
     desc_.shape_ = shape;
     return base::kStatusCodeOk;
   }
-  if (desc_.shape_.size() != shape.size()) {
-    NNDEPLOY_LOGE("shape size is not equal.\n");
-    return base::kStatusCodeErrorInvalidParam;
-  }
+  // if (desc_.shape_.size() != shape.size()) {
+  //   NNDEPLOY_LOGE("shape size is not equal.\n");
+  //   return base::kStatusCodeErrorInvalidParam;
+  // }
   // bool max_flag = true;
   // for (int i = 0; i < desc_.shape_.size(); ++i) {
   //   if (desc_.shape_[i] < shape[i]) {
@@ -533,6 +533,10 @@ base::Status Tensor::safetensorsShape2Shape(
   shape.clear();
   // for (const auto &it : safetensors_data_shape) {
   //   shape.emplace_back(it);
+  // }
+  // TODO, @always
+  // if (safetensors_data_shape.size() == 1){
+  //   shape.push_back(static_cast<int>(1));
   // }
   for (int i = 0; i < safetensors_data_shape.size(); ++i) {
     shape.push_back(static_cast<int>(safetensors_data_shape[i]));

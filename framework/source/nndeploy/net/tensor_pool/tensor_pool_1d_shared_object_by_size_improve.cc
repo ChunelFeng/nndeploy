@@ -129,6 +129,9 @@ base::Status TensorPool1DSharedObjectGreedyBySizeImprove::deallocate() {
   base::Status status = base::kStatusCodeOk;
 
   for (auto tensor_wrapper : tensor_repository_) {
+    if (tensor_wrapper->is_weight_) {
+      continue;
+    }
     auto tensor = tensor_wrapper->tensor_;
     tensor->deallocate();
   }

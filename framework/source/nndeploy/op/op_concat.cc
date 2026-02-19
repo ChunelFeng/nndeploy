@@ -23,8 +23,15 @@ namespace op {
 
 base::Status OpConcat::inferShape() {
   base::Status status = base::kStatusCodeOk;
+
+  if (this->getName() == "/Concat_12") {
+    for (int i = 0; i < inputs_.size(); ++i) {
+      inputs_[i]->print();
+    }
+  }
+
   // 参数
-  auto param = dynamic_cast<ir::ConcatParam *>(op_desc_.op_param_.get());
+  auto param = dynamic_cast<ir::ConcatParam*>(op_desc_.op_param_.get());
   NNDEPLOY_CHECK_PARAM_NULL_RET_STATUS(param, "op_desc_.op_param_ is nullptr");
   int axis = param->axis_;
   int rank = static_cast<int>(inputs_[0]->getShape().size());
@@ -41,9 +48,28 @@ base::Status OpConcat::inferShape() {
 
   // check input shape
   for (size_t i = 1; i < inputs_.size(); i++) {
+    // 当某个inputs_为权重时，支持在维度0扩充1
     if (inputs_[i]->getShape().size() != inputs_[0]->getShape().size()) {
-      NNDEPLOY_LOGE("input shape is not equal.\n");
-      return base::kStatusCodeErrorInvalidParam;
+      // 支持：当当前输入tensor为权重，且其shape比基准少1且第0维可补1，即可支持
+      bool valid = false;
+      if (inputs_[i]->getShape().size() + 1 == inputs_[0]->getShape().size()) {
+        auto* tensor_i = inputs_[i];
+        // 检查是否为权重Tensor，即is_weight_为true且前导维度为1
+        if (tensor_i->getBuffer()->getData() != nullptr) {
+          valid = true;
+          // 检查除了第0维（补的1）外其它维度是否一致
+          base::IntVector shape = tensor_i->getShape();
+          shape.insert(shape.begin(), 1);
+          tensor_i->reshape(shape);
+          axis += 1;
+        }
+      }
+      if (!valid) {
+        NNDEPLOY_LOGE("input shape is not equal.\n");
+        return base::kStatusCodeErrorInvalidParam;
+      }
+      // 否则认为该输入可以视作[1,...]扩充。
+      // 可以在后续正式拼接代码中处理该扩充情况。
     }
     for (size_t j = 0; j < inputs_[0]->getShape().size(); j++) {
       if (j == (size_t)axis) {
@@ -72,7 +98,7 @@ base::Status OpConcat::run() {
   base::Status status = base::kStatusCodeOk;
 
   // 获取拼接参数
-  auto param = dynamic_cast<ir::ConcatParam *>(op_desc_.op_param_.get());
+  auto param = dynamic_cast<ir::ConcatParam*>(op_desc_.op_param_.get());
   NNDEPLOY_CHECK_PARAM_NULL_RET_STATUS(param, "op_desc_.op_param_ is nullptr");
   int axis = param->axis_;
 
@@ -103,9 +129,9 @@ base::Status OpConcat::run() {
 
     size_t axis_dim = input_shape[axis];
 
-    const char *input_data =
-        reinterpret_cast<const char *>(input_tensor->getData());
-    char *output_data = reinterpret_cast<char *>(output_tensor->getData());
+    const char* input_data =
+        reinterpret_cast<const char*>(input_tensor->getData());
+    char* output_data = reinterpret_cast<char*>(output_tensor->getData());
 
     // 按照outer_dim、axis_dim、inner_dim三个维度拷贝数据
     for (size_t outer = 0; outer < outer_dim; ++outer) {
@@ -123,12 +149,12 @@ base::Status OpConcat::run() {
   return status;
 }
 
-base::Status concat(std::vector<device::Tensor *> input,
+base::Status concat(std::vector<device::Tensor*> input,
                     std::shared_ptr<ir::ConcatParam> param,
-                    device::Tensor *output) {
+                    device::Tensor* output) {
   base::Status status = base::kStatusCodeOk;
 
-  Op *op = createOp(input[0]->getDeviceType(), "", ir::kOpTypeConcat);
+  Op* op = createOp(input[0]->getDeviceType(), "", ir::kOpTypeConcat);
   if (op == nullptr) {
     NNDEPLOY_LOGE("createOp failed");
     return base::kStatusCodeErrorNotImplement;

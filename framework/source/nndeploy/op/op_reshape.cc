@@ -96,6 +96,9 @@ base::Status OpReshape::inferShape() {
       output_shape[negativeOneDim] = (inputProduct / outputProduct);
     }
   }
+  for (int i = 0; i < output_shape.size(); ++i) {
+    NNDEPLOY_LOGE("output_shape[%d] = %d\n", i, output_shape[i]);
+  }
   outputs_[0]->reshape(output_shape);
 
   return status;

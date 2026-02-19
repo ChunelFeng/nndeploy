@@ -1,6 +1,5 @@
 
 
-
 #include "nndeploy/net/runtime/sequential_runtime.h"
 
 #include "nndeploy/base/time_profiler.h"
@@ -15,19 +14,19 @@ TypeRuntimeRegister<TypeRuntimeCreator<SequentialRuntime>>
 TypeRuntimeRegister<TypeRuntimeCreator<SequentialRuntime>>
     g_sequential_runtime_register_none(base::ParallelType::kParallelTypeNone);
 
-SequentialRuntime::SequentialRuntime(const base::DeviceType &device_type)
-    : Runtime(device_type){};
-SequentialRuntime::~SequentialRuntime(){};
+SequentialRuntime::SequentialRuntime(const base::DeviceType& device_type)
+    : Runtime(device_type) {};
+SequentialRuntime::~SequentialRuntime() {};
 
 base::Status SequentialRuntime::init(
-    std::vector<TensorWrapper *> &tensor_repository,
-    std::vector<OpWrapper *> &op_repository,
-    std::vector<device::Tensor *> &input_tensors,
-    std::vector<device::Tensor *> &output_tensors, bool is_dynamic_shape,
+    std::vector<TensorWrapper*>& tensor_repository,
+    std::vector<OpWrapper*>& op_repository,
+    std::vector<device::Tensor*>& input_tensors,
+    std::vector<device::Tensor*>& output_tensors, bool is_dynamic_shape,
     base::ShapeMap max_shape, TensorPoolType tensor_pool_type,
     bool is_external_tensor_pool_memory) {
   base::Status status = base::kStatusCodeOk;
-  device::Device *device = device::getDevice(device_type_);
+  device::Device* device = device::getDevice(device_type_);
 
   // 输入输出tensor
   input_tensors_ = input_tensors;
@@ -45,22 +44,24 @@ base::Status SequentialRuntime::init(
   }
 
   // # 激活值的tensor分配
-  tensor_pool_type_ = tensor_pool_type;
-  tensor_pool_ = createTensorPool(tensor_pool_type_, device, tensor_repository,
-                                  op_repository);
-  is_external_tensor_pool_memory_ = is_external_tensor_pool_memory;
-  tensor_pool_->setIsExternal(is_external_tensor_pool_memory);
   /**
    * @brief
    * 如果是动态shape且max_shape为空时，那么不需要分配tensor
    */
   bool flag = is_dynamic_shape && max_shape.empty();
   if (!flag) {
+    tensor_pool_type_ = tensor_pool_type;
+    tensor_pool_ = createTensorPool(tensor_pool_type_, device,
+                                    tensor_repository, op_repository);
+    is_external_tensor_pool_memory_ = is_external_tensor_pool_memory;
+    tensor_pool_->setIsExternal(is_external_tensor_pool_memory);
     status = tensor_pool_->allocate();
     if (status != base::kStatusCodeOk) {
       NNDEPLOY_LOGE("tensor_pool_ allocate failed\n");
       return status;
     }
+  } else {
+    ;
   }
 
   // # op的初始化
@@ -84,7 +85,7 @@ base::Status SequentialRuntime::init(
 base::Status SequentialRuntime::deinit() {
   base::Status status = base::kStatusCodeOk;
   if (!workspace_is_external_ && workspace_ != nullptr && workspace_size_ > 0) {
-    device::Device *device = device::getDevice(device_type_);
+    device::Device* device = device::getDevice(device_type_);
     device->deallocate(workspace_);
     workspace_size_ = 0U;
     workspace_is_external_ = false;
@@ -104,13 +105,14 @@ base::Status SequentialRuntime::deinit() {
       NNDEPLOY_LOGE("tensor_pool_ allocate failed\n");
       return status;
     }
+    delete tensor_pool_;
   }
-  delete tensor_pool_;
+  
   return status;
 }
 
 // 可以性能优化
-base::Status SequentialRuntime::reshape(base::ShapeMap &shape_map) {
+base::Status SequentialRuntime::reshape(base::ShapeMap& shape_map) {
   base::Status status = base::kStatusCodeOk;
   if (!is_dynamic_shape_) {
     NNDEPLOY_LOGE("reshape is not supported in static shape\n");
@@ -168,7 +170,8 @@ base::Status SequentialRuntime::reshape(base::ShapeMap &shape_map) {
     for (auto iter : op_repository_) {
       status = iter->op_->inferShape();
       if (status != base::kStatusCodeOk) {
-        NNDEPLOY_LOGE("Node %s inferShape failed\n", iter->op_->getName().c_str());
+        NNDEPLOY_LOGE("Node %s inferShape failed\n",
+                      iter->op_->getName().c_str());
         return status;
       }
     }
@@ -203,7 +206,7 @@ base::Status SequentialRuntime::preRun() {
 }
 base::Status SequentialRuntime::run() {
   base::Status status = base::kStatusCodeOk;
-  device::Device *device = device::getDevice(device_type_);
+  device::Device* device = device::getDevice(device_type_);
   // workspace
   if (workspace_size_ == 0 || is_dynamic_shape_) {
     if (workspace_ != nullptr) {
@@ -295,9 +298,9 @@ base::Status SequentialRuntime::postRun() {
   return status;
 }
 
-base::Status SequentialRuntime::copyToInputTensor(device::Tensor *tensor) {
-  device::Tensor *src_tensor = tensor;
-  device::Tensor *dst_tensor = nullptr;
+base::Status SequentialRuntime::copyToInputTensor(device::Tensor* tensor) {
+  device::Tensor* src_tensor = tensor;
+  device::Tensor* dst_tensor = nullptr;
   for (auto input : input_tensors_) {
     // NNDEPLOY_LOGI("copyToInputTensor input[%s].\n",
     // input->getName().c_str()); NNDEPLOY_LOGI("copyToInputTensor
@@ -332,11 +335,11 @@ base::Status SequentialRuntime::copyToInputTensor(device::Tensor *tensor) {
   return base::kStatusCodeOk;
 }
 
-device::Tensor *SequentialRuntime::getOutputTensorAfterRun(
-    const std::string &name, base::DeviceType device_type, bool is_copy,
+device::Tensor* SequentialRuntime::getOutputTensorAfterRun(
+    const std::string& name, base::DeviceType device_type, bool is_copy,
     base::DataFormat data_format) {
-  device::Device *device = device::getDevice(device_type);
-  device::Tensor *internal_output_tensor = nullptr;
+  device::Device* device = device::getDevice(device_type);
+  device::Tensor* internal_output_tensor = nullptr;
   for (auto output : output_tensors_) {
     if (output->getName() == name) {
       internal_output_tensor = output;
@@ -348,7 +351,7 @@ device::Tensor *SequentialRuntime::getOutputTensorAfterRun(
     return nullptr;
   }
   bool flag = is_copy || (internal_output_tensor->getDevice() != device);
-  device::Tensor *output_tensor = nullptr;
+  device::Tensor* output_tensor = nullptr;
   if (flag) {
     output_tensor =
         new device::Tensor(device, internal_output_tensor->getDesc(), name);

@@ -670,6 +670,7 @@ base::Status ModelDesc::deserializeWeightsFromSafetensors(
   size_t tensor_size = st_ptr->tensors.size();
   const std::vector<std::string> &keys = st_ptr->tensors.keys();
   for (size_t i = 0; i < tensor_size; ++i) {
+    // NNDEPLOY_LOGE("deserializeWeightsFromSafetensors: %s\n", keys[i].c_str());
     std::string tensor_name = keys[i];
     if (weights_.find(tensor_name) != weights_.end()) {
       NNDEPLOY_LOGE("The weight name %s is repeated\n", tensor_name.c_str());
