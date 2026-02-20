@@ -144,6 +144,7 @@ class NNDEPLOY_CC_API Runtime : public base::NonCopyable {
   TensorPool *tensor_pool_;
   bool is_dynamic_shape_ = false;                // 是否是动态shape
   base::ShapeMap max_shape_ = base::ShapeMap();  // 当为动态输入时最大shape
+  bool is_pure_dynamic_shape_ = false;
   std::vector<TensorWrapper *> tensor_repository_;
   std::vector<OpWrapper *> op_repository_;
   std::vector<device::Tensor *> input_tensors_;

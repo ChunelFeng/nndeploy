@@ -44,24 +44,25 @@ base::Status SequentialRuntime::init(
   }
 
   // # 激活值的tensor分配
+  tensor_pool_type_ = tensor_pool_type;
+  tensor_pool_ = createTensorPool(tensor_pool_type_, device, tensor_repository,
+                                  op_repository);
+  is_external_tensor_pool_memory_ = is_external_tensor_pool_memory;
+  tensor_pool_->setIsExternal(is_external_tensor_pool_memory);
   /**
    * @brief
    * 如果是动态shape且max_shape为空时，那么不需要分配tensor
    */
   bool flag = is_dynamic_shape && max_shape.empty();
   if (!flag) {
-    tensor_pool_type_ = tensor_pool_type;
-    tensor_pool_ = createTensorPool(tensor_pool_type_, device,
-                                    tensor_repository, op_repository);
-    is_external_tensor_pool_memory_ = is_external_tensor_pool_memory;
-    tensor_pool_->setIsExternal(is_external_tensor_pool_memory);
     status = tensor_pool_->allocate();
     if (status != base::kStatusCodeOk) {
       NNDEPLOY_LOGE("tensor_pool_ allocate failed\n");
       return status;
     }
+    is_pure_dynamic_shape_ = false;
   } else {
-    ;
+    is_pure_dynamic_shape_ = true;
   }
 
   // # op的初始化
@@ -105,9 +106,8 @@ base::Status SequentialRuntime::deinit() {
       NNDEPLOY_LOGE("tensor_pool_ allocate failed\n");
       return status;
     }
-    delete tensor_pool_;
   }
-  
+  delete tensor_pool_;
   return status;
 }
 
@@ -172,7 +172,10 @@ base::Status SequentialRuntime::reshape(base::ShapeMap& shape_map) {
       if (status != base::kStatusCodeOk) {
         NNDEPLOY_LOGE("Node %s inferShape failed\n",
                       iter->op_->getName().c_str());
-        return status;
+        is_pure_dynamic_shape_ = true;
+        return base::kStatusCodeOk;
+      } else {
+        is_pure_dynamic_shape_ = false;
       }
     }
     if (is_reallocate) {
@@ -189,11 +192,6 @@ base::Status SequentialRuntime::reshape(base::ShapeMap& shape_map) {
 
 base::Status SequentialRuntime::preRun() {
   base::Status status = base::kStatusCodeOk;
-  // 输出tensor
-  // device::Device *device = device::getDevice(device_type_);
-  // for (auto iter : output_tensors_) {
-  //   iter->allocate(device);
-  // }
   for (auto iter : op_repository_) {
     status = iter->op_->preRun();
     if (status != base::kStatusCodeOk) {
@@ -231,30 +229,34 @@ base::Status SequentialRuntime::run() {
   // 运行
   NNDEPLOY_TIME_POINT_START("net->run()");
   for (auto iter : op_repository_) {
-    status = iter->op_->run();
+    if (is_pure_dynamic_shape_) {
+      status = iter->op_->inferShape();
+      if (status != base::kStatusCodeOk) {
+        NNDEPLOY_LOGE("Node %s inferShape failed\n", iter->op_->getName().c_str());
+        return status;
+      }
+      status = tensor_pool_->allocateOp(iter->op_);
+      if (status != base::kStatusCodeOk) {
+        NNDEPLOY_LOGE("tensor_pool_ allocate node[%s] failed\n", iter->op_->getName().c_str());
+        return status;
+      }
+    }
     // NNDEPLOY_LOGE("Node %s run\n", iter->op_->getName().c_str());
+    status = iter->op_->run();
     if (status != base::kStatusCodeOk) {
       NNDEPLOY_LOGE("Node %s run failed\n", iter->op_->getName().c_str());
       return status;
     }
-    // auto device_type = iter->op_->getDeviceType();
-    // NNDEPLOY_LOGI("op device_type %s\n",
-    //               base::deviceTypeToString(device_type).c_str());
-    // std::vector<device::Tensor *> tensors = iter->op_->getAllInput();
-    // for (auto tensor : tensors) {
-    //   NNDEPLOY_LOGI("tensor device_type %s\n",
-    //                 base::deviceTypeToString(tensor->getDeviceType()).c_str());
-    // }
-    // status = stream_->synchronize();
-    // if (status != base::kStatusCodeOk) {
-    //   NNDEPLOY_LOGE("stream_->synchronize() failed\n");
-    //   return status;
-    // }
+    if (is_pure_dynamic_shape_) {
+      status = tensor_pool_->deallocateOp(iter->op_);
+      if (status != base::kStatusCodeOk) {
+        NNDEPLOY_LOGE("tensor_pool_ deallocate node[%s] failed\n", iter->op_->getName().c_str());
+        return status;
+      }
+    }
   }
   NNDEPLOY_TIME_POINT_END("net->run()");
-
   // NNDEPLOY_LOGI("run ok!\n");
-
 #if 0
   NNDEPLOY_TIME_POINT_START("stream_->synchronize()");
   status = stream_->synchronize();

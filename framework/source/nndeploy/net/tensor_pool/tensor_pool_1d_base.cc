@@ -6,12 +6,73 @@ namespace nndeploy {
 namespace net {
 
 // tensorpool 基类实现
-TensorPool1D::TensorPool1D(device::Device *device,
-                           std::vector<TensorWrapper *> &tensor_repository,
-                           std::vector<OpWrapper *> &op_repository)
+TensorPool1D::TensorPool1D(device::Device* device,
+                           std::vector<TensorWrapper*>& tensor_repository,
+                           std::vector<OpWrapper*>& op_repository)
     : TensorPool(device, tensor_repository, op_repository) {}
 
 TensorPool1D::~TensorPool1D() {}
+
+base::Status TensorPool1D::initTensorUsageRecordMap() {
+  base::Status status = base::kStatusCodeOk;
+
+  for (size_t i = 0; i < tensor_repository_.size(); i++) {
+    if (tensor_repository_[i]->is_weight_) {
+      continue;
+    }
+    auto tensor_usage_record = std::make_shared<TensorUsageRecord>();
+    tensor_usage_record->tensor_wrapper_ = tensor_repository_[i];
+    tensor_usage_record->is_allocated_ = false;
+    int min = static_cast<int>(op_repository_.size() - 1);
+    int max = 0;
+    std::vector<int> order_index =
+        getOpOrderIndex(tensor_repository_[i]->producers_,
+                        tensor_repository_[i]->consumers_, op_repository_);
+    for (size_t j = 0; j < order_index.size(); j++) {
+      if (order_index[j] < min) {
+        min = order_index[j];
+      }
+      if (order_index[j] > max) {
+        max = order_index[j];
+      }
+    }
+    if (tensor_repository_[i]->input_output_type_ != kNone) {
+      min = 0;
+      max = static_cast<int>(op_repository_.size() - 1);
+    }
+    tensor_usage_record->interval_[0] = min;
+    tensor_usage_record->interval_[1] = max;
+    tensor_usage_record_map_[tensor_repository_[i]->tensor_] =
+        tensor_usage_record;
+  }
+
+  return status;
+}
+
+base::Status TensorPool1D::deinitTensorUsageRecordMap() {
+  base::Status status = base::kStatusCodeOk;
+
+  tensor_usage_record_map_.clear();
+
+  return status;
+}
+
+base::Status TensorPool1D::initOpIndexMap() {
+  base::Status status = base::kStatusCodeOk;
+
+  for (size_t i = 0; i < op_repository_.size(); i++) {
+    op_index_map_[op_repository_[i]->op_] = i;
+  }
+
+  return status;
+}
+base::Status TensorPool1D::deinitOpIndexMap() {
+  base::Status status = base::kStatusCodeOk;
+
+  op_index_map_.clear();
+
+  return status;
+}
 
 base::Status TensorPool1D::initTensorUsageRecord() {
   base::Status status = base::kStatusCodeOk;
@@ -58,8 +119,8 @@ base::Status TensorPool1D::initTensorUsageRecord() {
     // NNDEPLOY_LOGE("min=%d, max=%d.\n", min, max);
   }
   std::sort(tensor_usage_records_.begin(), tensor_usage_records_.end(),
-            [](const std::shared_ptr<TensorUsageRecord> &a,
-               const std::shared_ptr<TensorUsageRecord> &b) {
+            [](const std::shared_ptr<TensorUsageRecord>& a,
+               const std::shared_ptr<TensorUsageRecord>& b) {
               return a->size_ > b->size_;
             });
 
@@ -89,8 +150,8 @@ base::Status TensorPool1D::initOpBreadth() {
       }
     }
     std::sort(op_breadth->breadth_.begin(), op_breadth->breadth_.end(),
-              [](const std::shared_ptr<TensorUsageRecord> &a,
-                 const std::shared_ptr<TensorUsageRecord> &b) {
+              [](const std::shared_ptr<TensorUsageRecord>& a,
+                 const std::shared_ptr<TensorUsageRecord>& b) {
                 return a->size_ > b->size_;
               });
     op_breadths_.push_back(op_breadth);
@@ -109,8 +170,8 @@ base::Status TensorPool1D::initOpBreadth() {
 
   std::sort(
       op_breadths_.begin(), op_breadths_.end(),
-      [](const std::shared_ptr<OpBreadth> &a,
-         const std::shared_ptr<OpBreadth> &b) { return a->size_ > b->size_; });
+      [](const std::shared_ptr<OpBreadth>& a,
+         const std::shared_ptr<OpBreadth>& b) { return a->size_ > b->size_; });
   // NNDEPLOY_LOGE("max_breadth_length = %d.\n", max_breadth_length);
 
   return status;
@@ -147,6 +208,64 @@ base::Status TensorPool1D::deinitPositionalMaximum() {
 
   positional_maximum_.clear();
 
+  return status;
+}
+
+base::Status TensorPool1D::allocateTensor(device::Tensor* tensor) {
+  base::Status status = base::kStatusCodeOk;
+
+  auto tensor_usage_record = tensor_usage_record_map_[tensor];
+  if (tensor_usage_record->is_allocated_) {
+    return base::kStatusCodeOk;
+  }
+
+  auto device = tensor->getDevice();
+  tensor->allocate(device);
+
+  tensor_usage_record->is_allocated_ = true;
+  return status;
+}
+base::Status TensorPool1D::deallocateTensor(device::Tensor* tensor,
+                                            int op_index) {
+  base::Status status = base::kStatusCodeOk;
+
+  auto tensor_usage_record = tensor_usage_record_map_[tensor];
+  if (!tensor_usage_record->is_allocated_) {
+    return base::kStatusCodeOk;
+  }
+
+  if (op_index != -1 && tensor_usage_record->interval_[1] > op_index) {
+    return base::kStatusCodeOk;
+  }
+
+  tensor->deallocate();
+
+  tensor_usage_record->is_allocated_ = false;
+  return status;
+}
+base::Status TensorPool1D::allocateOp(op::Op* op) {
+  base::Status status = base::kStatusCodeOk;
+  auto outputs = op->getAllOutput();
+  for (auto output : outputs) {
+    status = allocateTensor(output);
+    if (status != base::kStatusCodeOk) {
+      NNDEPLOY_LOGE("allocateTensor failed\n");
+      return status;
+    }
+  }
+  return status;
+}
+base::Status TensorPool1D::deallocateOp(op::Op* op) {
+  base::Status status = base::kStatusCodeOk;
+  auto op_index = op_index_map_[op];
+  auto inputs = op->getAllInput();
+  for (auto input : inputs) {
+    status = deallocateTensor(input, op_index);
+    if (status != base::kStatusCodeOk) {
+      NNDEPLOY_LOGE("deallocateTensor failed\n");
+      return status;
+    }
+  }
   return status;
 }
 

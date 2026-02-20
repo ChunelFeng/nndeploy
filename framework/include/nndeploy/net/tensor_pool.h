@@ -76,8 +76,18 @@ class TensorPool {
 
   virtual base::Status setIsExternal(bool is_external);
 
+  virtual base::Status initTensorUsageRecordMap() = 0;
+  virtual base::Status deinitTensorUsageRecordMap() = 0;
+  virtual base::Status initOpIndexMap() = 0;
+  virtual base::Status deinitOpIndexMap() = 0;
+
   virtual base::Status allocate() = 0;
   virtual base::Status deallocate() = 0;
+
+  virtual base::Status allocateTensor(device::Tensor *tensor) = 0;
+  virtual base::Status deallocateTensor(device::Tensor *tensor, int op_index = -1) = 0;
+  virtual base::Status allocateOp(op::Op *op) = 0;
+  virtual base::Status deallocateOp(op::Op *op) = 0;
 
   /**
    * @brief 获取推理所需的内存大小

@@ -17,10 +17,16 @@ namespace net {
 
 class TensorPool1D : public TensorPool {
  public:
-  TensorPool1D(device::Device *device,
-               std::vector<TensorWrapper *> &tensor_repository,
-               std::vector<OpWrapper *> &op_repository);
+  TensorPool1D(device::Device* device,
+               std::vector<TensorWrapper*>& tensor_repository,
+               std::vector<OpWrapper*>& op_repository);
   virtual ~TensorPool1D();
+
+  // for pure dynamic shape
+  virtual base::Status initTensorUsageRecordMap();
+  virtual base::Status deinitTensorUsageRecordMap();
+  virtual base::Status initOpIndexMap();
+  virtual base::Status deinitOpIndexMap();
 
   base::Status initTensorUsageRecord();
   base::Status deinitTensorUsageRecord();
@@ -31,7 +37,17 @@ class TensorPool1D : public TensorPool {
   base::Status initPositionalMaximum();
   base::Status deinitPositionalMaximum();
 
+  virtual base::Status allocateTensor(device::Tensor* tensor);
+  virtual base::Status deallocateTensor(device::Tensor* tensor, int op_index = -1);
+  virtual base::Status allocateOp(op::Op* op);
+  virtual base::Status deallocateOp(op::Op* op);
+
  protected:
+  // for pure dynamic shape
+  std::map<device::Tensor*, std::shared_ptr<TensorUsageRecord>>
+      tensor_usage_record_map_;
+  std::map<op::Op*, int> op_index_map_;
+
   std::vector<std::shared_ptr<TensorUsageRecord>> tensor_usage_records_;
   std::vector<std::shared_ptr<OpBreadth>> op_breadths_;
   std::vector<size_t> positional_maximum_;
