@@ -62,6 +62,16 @@ base::Status SequentialRuntime::init(
     }
     is_pure_dynamic_shape_ = false;
   } else {
+    status = tensor_pool_->initTensorUsageRecordMap();
+    if (status != base::kStatusCodeOk) {
+      NNDEPLOY_LOGE("tensor_pool_ initTensorUsageRecordMap failed\n");
+      return status;
+    }
+    status = tensor_pool_->initOpIndexMap();
+    if (status != base::kStatusCodeOk) {
+      NNDEPLOY_LOGE("tensor_pool_ initOpIndexMap failed\n");
+      return status;
+    }
     is_pure_dynamic_shape_ = true;
   }
 
@@ -232,12 +242,14 @@ base::Status SequentialRuntime::run() {
     if (is_pure_dynamic_shape_) {
       status = iter->op_->inferShape();
       if (status != base::kStatusCodeOk) {
-        NNDEPLOY_LOGE("Node %s inferShape failed\n", iter->op_->getName().c_str());
+        NNDEPLOY_LOGE("Node %s inferShape failed\n",
+                      iter->op_->getName().c_str());
         return status;
       }
       status = tensor_pool_->allocateOp(iter->op_);
       if (status != base::kStatusCodeOk) {
-        NNDEPLOY_LOGE("tensor_pool_ allocate node[%s] failed\n", iter->op_->getName().c_str());
+        NNDEPLOY_LOGE("tensor_pool_ allocate node[%s] failed\n",
+                      iter->op_->getName().c_str());
         return status;
       }
     }
@@ -250,7 +262,8 @@ base::Status SequentialRuntime::run() {
     if (is_pure_dynamic_shape_) {
       status = tensor_pool_->deallocateOp(iter->op_);
       if (status != base::kStatusCodeOk) {
-        NNDEPLOY_LOGE("tensor_pool_ deallocate node[%s] failed\n", iter->op_->getName().c_str());
+        NNDEPLOY_LOGE("tensor_pool_ deallocate node[%s] failed\n",
+                      iter->op_->getName().c_str());
         return status;
       }
     }

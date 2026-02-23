@@ -219,8 +219,7 @@ base::Status TensorPool1D::allocateTensor(device::Tensor* tensor) {
     return base::kStatusCodeOk;
   }
 
-  auto device = tensor->getDevice();
-  tensor->allocate(device);
+  tensor->allocate(device_);
 
   tensor_usage_record->is_allocated_ = true;
   return status;
@@ -230,6 +229,9 @@ base::Status TensorPool1D::deallocateTensor(device::Tensor* tensor,
   base::Status status = base::kStatusCodeOk;
 
   auto tensor_usage_record = tensor_usage_record_map_[tensor];
+  if (tensor_usage_record == nullptr) {
+    return base::kStatusCodeOk;
+  }
   if (!tensor_usage_record->is_allocated_) {
     return base::kStatusCodeOk;
   }
