@@ -498,7 +498,7 @@ cmd_classes["install"] = InstallCommand
 
 
 # Execute copy operation
-copy_server_directory()
+# copy_server_directory()
 setup(
     name="nndeploy",
     version="3.0.8",  # Fix version number format

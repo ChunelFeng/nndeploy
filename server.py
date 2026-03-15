@@ -19,7 +19,7 @@
 # python app.py --front-end-version @latest        # Specify frontend version
 # python app.py --json_file ./json_file.json,...   # Specify json file paths, copy json files to workflow directory
 
-# import nndeploy.server.server as server
+import nndeploy.server.server as server
 
-# if __name__ == "__main__":
-#     server.main()
+if __name__ == "__main__":
+    server.main()
