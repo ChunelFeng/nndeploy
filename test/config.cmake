@@ -49,7 +49,7 @@ list(APPEND THIRD_PARTY_LIBRARY ${NNDEPLOY_PLUGIN_LIST})
 
 set(TEST_BUILD_DIR ${CMAKE_BINARY_DIR}/test)
 #DAG tests
-set(DAG_TEST_PATH ${ROOT_PATH}/test/source/nndeploy/dag)
+set(DAG_TEST_PATH ${ROOT_PATH}/test/dag)
 
 add_test(edge_test "")
 add_test(graph_test "")

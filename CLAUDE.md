@@ -46,7 +46,7 @@ Python bindings require C++17 ABI for tokenizer-cpp support.
 
 ### Test Execution
 
-Tests use GoogleTest framework and are located in `test/source/nndeploy/`:
+Tests use GoogleTest framework and are located in `test/`:
 ```bash
 cd build
 ctest --verbose
@@ -182,7 +182,7 @@ python -c "import nndeploy; graph = nndeploy.dag.Graph(''); graph.load_file('wor
 - Plugin sources in `plugin/source/nndeploy/`
 - Python bindings in `python/src/nndeploy/`
 - Demos in `demo/`
-- Tests in `test/source/nndeploy/`
+- Tests in `test/`
 
 ## Platform-Specific Notes
 
