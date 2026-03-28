@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# nndeploy 开发环境容器启动脚本
+# always 开发环境容器启动脚本
 # 使用本地源码挂载方式，无需在容器内 git clone
 
 set -e
@@ -12,8 +12,8 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # 默认参数
-IMAGE_NAME="nndeploy:ort_ov_trt_mnn_develop"
-CONTAINER_NAME="nndeploy_dev"
+IMAGE_NAME="always:test"
+CONTAINER_NAME="always_test"
 HOST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORKSPACE_DIR="/workspace"
 GPU_ENABLED="--gpus all"
@@ -43,8 +43,8 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "选项:"
             echo "  --no-gpu          禁用 GPU"
-            echo "  --name NAME       容器名称 (默认: nndeploy_dev)"
-            echo "  --image NAME      镜像名称 (默认: nndeploy:ort_ov_trt_mnn_develop)"
+            echo "  --name NAME       容器名称 (默认: always_test)"
+            echo "  --image NAME      镜像名称 (默认: always:test)"
             echo "  --non-interactive 非交互模式"
             echo "  -h, --help        显示帮助信息"
             echo ""

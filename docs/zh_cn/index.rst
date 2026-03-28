@@ -11,6 +11,8 @@
    :caption: 介绍
 
    introduction/README.md
+   introduction/architecture.md
+   introduction/README_INFERENCE.md
 
 .. toctree::
    :maxdepth: 1
@@ -42,27 +44,7 @@
 
    developer_guide/how_to_support_new_inference.md
    developer_guide/how_to_support_new_device.md
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 架构指南
-
-   architecture_guide/architecture.md
-   architecture_guide/parallel.md
-   architecture_guide/directed_acyclic_graph.md
-   architecture_guide/process_template.md
-   architecture_guide/resourse_pool.md
-   architecture_guide/inference.md
-   architecture_guide/op.md
-   architecture_guide/data_container.md   
-   architecture_guide/device.md
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 自研推理框架
-
-   inference/README_INFERENCE.md
-
+   
 .. toctree::
    :maxdepth: 1
    :caption: 版本发行

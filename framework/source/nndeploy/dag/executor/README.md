@@ -11,7 +11,7 @@ nndeploy当前支持任务级并行和流水线并行两种并行方式。二者
 
 任务级并行利用模型内部节点的并行性，将多个节点调度在多个线程中同时执行。假设有一个9节点的有向无环图，其拓扑架构如下，边表示数据的流向，用边连接的两个节点具有生产者-消费者的依赖关系，当生产者节点运行完毕后，消费者节点才能运行。例如E节点需要等C节点和D节点运行完毕后再运行。
 
-![{nodes}](../../image/architecture_guide/nodes.png)
+![{nodes}](../../../../../docs/image/architecture_guide/nodes.png)
 
 从最初的输入开始。input数据准备好后，A、B节点就可以并行运行，A节点运行完后C节点可以运行，同理B节点运行完后D节点可以运行。从图上看，似乎C、D节点也是并行的。然而在实际运行时，由于A、B节点的运行时间未知，因此C、D节点不一定是并行的，有可能A、C节点都运行结束后，B节点仍在运行。这种运行时间未知带来的问题是无法在编译时就确定哪些节点之间是并行的，因此静态的建立图节点并行计算方式是非常困难的。
 
@@ -27,7 +27,7 @@ nndeploy采用的方式是运行时动态解图，在每个节点计算完毕后
 
 全图运行流程如下：
 
-![{task_parallel}](../../image/architecture_guide/task_parallel_process.png)
+![{task_parallel}](../../../../../docs/image//architecture_guide/task_parallel_process.png)
 
 从开始节点（入度为0，即没有依赖的节点）出发。更改节点状态为运行中，然后将节点的运行函数和运行后处理函数提交线程池，以异步的方式开始执行。节点的运行函数为用户自己实现的运行函数，运行后处理函数为nndeploy添加。
 
@@ -55,7 +55,7 @@ nndeploy采用的方式是运行时动态解图，在每个节点计算完毕后
 
 以下图为例。共有4张图片需要处理，前处理、推理、后处理具有线性的依赖关系。t0时刻前处理节点处理image1的数据，t1时刻前处理节点处理image2的数据，推理节点处理由前处理计算完毕的image1数据。以此类推，每一个节点在下一时刻处理由上一个节点计算完毕的下一份数据。每一个时间片的大小由最耗时的节点时间开销决定，其余节点时间开销被隐藏。假设推理耗时最大，当数据总量足够大时，总的时间开销约等于数据总量x单个图片推理时延。
 
-![pipeline_parallel_process](../../image/architecture_guide/pipeline_parallel_process.png)
+![pipeline_parallel_process](../../../../../docs/image//architecture_guide/pipeline_parallel_process.png)
 
 nndeploy中流水线并行实现思路如下：
 
@@ -73,13 +73,13 @@ nndeploy中流水线并行实现思路如下：
 
 节点何时开始运行：当该节点的运行速度小于其前驱节点时，前驱结点生成数据基本能满足该节点的运行。否则，该节点需要等待前驱结点完成计算。在流水线并行中，节点之间数据流动由`PipelineEdge`边控制。每条`PipelineEdge`可能有多个消费者节点，而不同消费者节点消耗数据速度可能不同。因此在`PipelineEdge`维护了两个关键数据容器。一个数据容器为数据包的list，记录了所有还会被消费者消耗的数据包。另一个为<消费者-当前消费数据包>的map，记录了每个消费者当前消费数数据包索引。当某一个数据包永远不会被消耗时，其被销毁。当某个消费者需要的数据还没生产出来时，该消费者的运行会阻塞住，直到前驱生产者节点产生数据后，才能继续运行。
 
-![pipeline_parallel_process](../../image/architecture_guide/pipeline_edge.png)
+![pipeline_parallel_process](../../../../../docs/image//architecture_guide/pipeline_edge.png)
 
 节点何时结束运行：
 
 当所有数据都被消耗结束，且所有结果都已计算得出后，需要结束所有节点线程。主线程与节点线程关系如下图。在主线程获得结果这一步进行同步，保证所有数据的结果都被返回后，进行反初始化操作，给每个节点线程发送停止信号。
 
-![线程关系](../../image/architecture_guide/pipeline_thread.png)
+![线程关系](../../../../../docs/image//architecture_guide/pipeline_thread.png)
 
 3.反初始化
 

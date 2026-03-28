@@ -35,7 +35,7 @@ nndeploy is an easy-to-use, and high-performance AI deployment framework. Based 
   | [SNPE](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk)             | Qualcomm Snapdragon NPU inference framework | ✅     |
   | [TVM](https://github.com/apache/tvm)                                                       | Deep learning compiler stack      | ✅     |
   | [PyTorch](https://pytorch.org/)                                                            | Rapid prototyping / Cloud deployment | ✅     |
-  | [Self-developed Inference Framework](docs/zh_cn/inference/README_INFERENCE.md)             | Default inference framework       | ✅     |
+  | [Self-developed Inference Framework](docs/zh_cn/introduction/README_INFERENCE.md)             | Default inference framework       | ✅     |
 
 ### **Out-of-the-Box Algorithms**
 

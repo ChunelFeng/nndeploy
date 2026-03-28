@@ -10,7 +10,7 @@ nndeploy的后端基于 *FastAPI* 实现，向前端提供 RESTful API 与 WebSo
 
 ### 架构图
 
-![系统架构图](../../image/backend_arch.png)
+![系统架构图](../../../docs/image/backend_arch.png)
 
 其中：
 
