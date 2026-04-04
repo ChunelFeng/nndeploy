@@ -11,9 +11,8 @@ nndeploy is a high-performance AI deployment framework for edge computing (deskt
 ### Basic Build (Linux/macOS)
 
 ```bash
-mkdir build && cd build
-cp ../cmake/config.cmake .
-# Edit config.cmake to enable desired backends
+mkdir build && cd build # 假如存在，则不新建
+cp ../cmake/config.cmake . # 假如当前目录已经存在config.cmake，则不拷贝
 cmake ..
 make -j
 make install
@@ -45,12 +44,6 @@ pip install -e .
 Python bindings require C++17 ABI for tokenizer-cpp support.
 
 ### Test Execution
-
-Tests use GoogleTest framework and are located in `test/`:
-```bash
-cd build
-ctest --verbose
-```
 
 Run individual tests: `./test/edge_test`, `./test/graph_test`
 

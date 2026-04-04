@@ -1,8 +1,8 @@
 enable_testing()
 
-function(add_test TEST_NAME TEST_SOURCES)
+function(add_nndeploy_test TEST_NAME TEST_SOURCE)
   add_executable(${TEST_NAME}
-      ${DAG_TEST_PATH}/${TEST_NAME}.cc
+    ${TEST_SOURCE}
   )
   target_link_libraries(${TEST_NAME}
     GTest::gtest_main
@@ -30,6 +30,8 @@ function(add_test TEST_NAME TEST_SOURCES)
   else() 
     install(TARGETS ${TEST_NAME} RUNTIME DESTINATION ${NNDEPLOY_INSTALL_TEST_PATH})
   endif()
+
+  add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endfunction()
 
 set(DIRECTORY test)
@@ -48,13 +50,11 @@ list(APPEND THIRD_PARTY_LIBRARY ${NNDEPLOY_PLUGIN_THIRD_PARTY_LIBRARY})
 list(APPEND THIRD_PARTY_LIBRARY ${NNDEPLOY_PLUGIN_LIST})
 
 set(TEST_BUILD_DIR ${CMAKE_BINARY_DIR}/test)
-#DAG tests
-set(DAG_TEST_PATH ${ROOT_PATH}/test/dag)
 
-add_test(edge_test "")
-add_test(graph_test "")
-
-include(GoogleTest)
+add_nndeploy_test(edge_test ${ROOT_PATH}/test/dag/edge_test.cc)
+add_nndeploy_test(graph_test ${ROOT_PATH}/test/dag/graph_test.cc)
+add_nndeploy_test(device_buffer_tensor_test
+                  ${ROOT_PATH}/test/device/device_buffer_tensor_test.cc)
 
 unset(DIRECTORY)
 unset(DEPEND_LIBRARY)

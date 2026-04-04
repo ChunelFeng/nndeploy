@@ -6,6 +6,31 @@
 namespace nndeploy {
 namespace device {
 
+namespace {
+
+void releaseBufferState(Device *&device, MemoryPool *&memory_pool,
+                        BufferDesc &desc, base::MemoryType &memory_type,
+                        int *&ref_count, void *&data) {
+  if (data != nullptr && ref_count != nullptr &&
+      NNDEPLOY_XADD(ref_count, -1) == 1) {
+    if (memory_pool != nullptr && memory_type == base::kMemoryTypeAllocate) {
+      memory_pool->deallocate(data);
+    } else if (device != nullptr && memory_type == base::kMemoryTypeAllocate) {
+      device->deallocate(data);
+    }
+    delete ref_count;
+  }
+
+  device = nullptr;
+  memory_pool = nullptr;
+  desc.clear();
+  memory_type = base::kMemoryTypeNone;
+  ref_count = nullptr;
+  data = nullptr;
+}
+
+}  // namespace
+
 Buffer::Buffer(Device *device, size_t size) {
   device_ = device;
   memory_pool_ = nullptr;
@@ -112,6 +137,8 @@ Buffer &Buffer::operator=(const Buffer &buffer) {
   if (this == &buffer) {
     return *this;
   }
+  releaseBufferState(device_, memory_pool_, desc_, memory_type_, ref_count_,
+                     data_);
   device_ = buffer.device_;
   memory_pool_ = buffer.memory_pool_;
   desc_ = buffer.desc_;
@@ -140,6 +167,8 @@ Buffer &Buffer::operator=(Buffer &&buffer) noexcept {
   if (this == &buffer) {
     return *this;
   }
+  releaseBufferState(device_, memory_pool_, desc_, memory_type_, ref_count_,
+                     data_);
   device_ = buffer.device_;
   memory_pool_ = buffer.memory_pool_;
   desc_ = std::move(buffer.desc_);
@@ -151,19 +180,8 @@ Buffer &Buffer::operator=(Buffer &&buffer) noexcept {
 }
 
 Buffer::~Buffer() {
-  if (data_ != nullptr && ref_count_ != nullptr && this->subRef() == 1) {
-    if (memory_pool_ != nullptr && memory_type_ == base::kMemoryTypeAllocate) {
-      if (data_ != nullptr) {
-        memory_pool_->deallocate(data_);
-      }
-    } else {
-      if (data_ != nullptr && memory_type_ == base::kMemoryTypeAllocate) {
-        device_->deallocate(data_);
-      }
-    }
-    delete ref_count_;
-  }
-  this->clear();
+  releaseBufferState(device_, memory_pool_, desc_, memory_type_, ref_count_,
+                     data_);
 };
 
 Buffer *Buffer::clone() {

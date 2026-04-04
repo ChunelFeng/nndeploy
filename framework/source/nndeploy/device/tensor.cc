@@ -12,6 +12,22 @@ namespace device {
 static TypeTensorRegister<TypeTensorCreator<Tensor>> g_defalut_tensor_register(
     base::kTensorTypeDefault);
 
+namespace {
+
+void releaseTensorBuffer(Buffer *&buffer, int *&ref_count, bool is_external) {
+  if (buffer != nullptr && ref_count != nullptr &&
+      NNDEPLOY_XADD(ref_count, -1) == 1) {
+    if (!is_external) {
+      delete buffer;
+    }
+    delete ref_count;
+  }
+  buffer = nullptr;
+  ref_count = nullptr;
+}
+
+}  // namespace
+
 Tensor::Tensor() {}
 Tensor::Tensor(const std::string &name) : name_(name){};
 Tensor::Tensor(const TensorDesc &desc, const std::string &name)
@@ -73,6 +89,7 @@ Tensor &Tensor::operator=(const Tensor &tensor) {
   if (this == &tensor) {
     return *this;
   }
+  deallocate();
   name_ = tensor.name_;
   desc_ = tensor.desc_;
   is_external_ = tensor.is_external_;
@@ -88,23 +105,38 @@ Tensor::Tensor(Tensor &&tensor) noexcept {
   if (this == &tensor) {
     return;
   }
-  name_ = tensor.name_;
+  name_ = std::move(tensor.name_);
   desc_ = std::move(tensor.desc_);
   is_external_ = tensor.is_external_;
   ref_count_ = tensor.ref_count_;
   buffer_ = tensor.buffer_;
-  tensor.clear();
+  tensor.name_.clear();
+  tensor.desc_.data_type_ = base::dataTypeOf<float>();
+  tensor.desc_.data_format_ = base::kDataFormatNotSupport;
+  tensor.desc_.shape_.clear();
+  tensor.desc_.stride_.clear();
+  tensor.is_external_ = false;
+  tensor.ref_count_ = nullptr;
+  tensor.buffer_ = nullptr;
 }
 Tensor &Tensor::operator=(Tensor &&tensor) noexcept {
   if (this == &tensor) {
     return *this;
   }
-  name_ = tensor.name_;
+  deallocate();
+  name_ = std::move(tensor.name_);
   desc_ = std::move(tensor.desc_);
   is_external_ = tensor.is_external_;
   ref_count_ = tensor.ref_count_;
   buffer_ = tensor.buffer_;
-  tensor.clear();
+  tensor.name_.clear();
+  tensor.desc_.data_type_ = base::dataTypeOf<float>();
+  tensor.desc_.data_format_ = base::kDataFormatNotSupport;
+  tensor.desc_.shape_.clear();
+  tensor.desc_.stride_.clear();
+  tensor.is_external_ = false;
+  tensor.ref_count_ = nullptr;
+  tensor.buffer_ = nullptr;
   return *this;
 }
 
@@ -244,14 +276,7 @@ void Tensor::allocate(MemoryPool *memory_pool, const base::IntVector &config) {
   ref_count_ = new int(1);
 }
 void Tensor::deallocate() {
-  if (buffer_ != nullptr && ref_count_ != nullptr && this->subRef() == 1) {
-    if (!is_external_) {
-      delete buffer_;
-    }
-    delete ref_count_;
-  }
-  buffer_ = nullptr;
-  ref_count_ = nullptr;
+  releaseTensorBuffer(buffer_, ref_count_, is_external_);
 }
 
 base::Status Tensor::reshape(base::IntVector shape) {
