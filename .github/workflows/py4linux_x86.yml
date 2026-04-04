@@ -145,6 +145,7 @@ jobs:
           CIBW_ENVIRONMENT: |
             PATH=$PATH:$HOME/.cargo/bin
             SETUPTOOLS_EXT_SUFFIX=.so
+            PYTHONPATH=$(python -c "import sys; print(':'.join(sys.path))")
 
         with:
           package-dir: ./python
