@@ -124,33 +124,38 @@ jobs:
       - name: Build Python package
         run: |
           cd python
-          pip install -e .
           python setup.py bdist_wheel --plat-name manylinux2014_x86_64  # Build wheel package
-          # 修复python包目录
+          # 修复wheel并将外部依赖打包进最终产物
           auditwheel repair dist/*.whl --wheel-dir auditwheel_dist
 
       # Step 10: Verify compilation results
       - name: Check compilation results
         run: |
-          cd python/dist    # Enter Python package directory
-          ls -la            # List generated wheel files
-          echo "Python package compilation completed"  # Output completion information
+          echo "Original wheels:"
+          ls -la python/dist
+          echo "Repaired wheels:"
+          ls -la python/auditwheel_dist
+          echo "Python package compilation completed"
 
-      # Step 11: Verify Python package import
-      - name: Verify Python package
+      # Step 11: Verify repaired wheel in a clean environment
+      - name: Verify repaired wheel
         run: |
+          python -m venv /tmp/nndeploy-wheel-test
+          source /tmp/nndeploy-wheel-test/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install python/auditwheel_dist/*.whl
           python -c "
-          import platform
-          try:
-              import nndeploy
-              print(f'✓ Successfully imported nndeploy {nndeploy.__version__}')
-              print(f'Platform: {platform.platform()}')
-              print(f'Architecture: {platform.machine()}')
-              print(f'Python version: {platform.python_version()}')
-          except ImportError as e:
-              print(f'✗ Import failed: {e}')
-              exit(1)
-          "
+import platform
+try:
+    import nndeploy
+    print(f'✓ Successfully imported nndeploy {nndeploy.__version__}')
+    print(f'Platform: {platform.platform()}')
+    print(f'Architecture: {platform.machine()}')
+    print(f'Python version: {platform.python_version()}')
+except ImportError as e:
+    print(f'✗ Import failed: {e}')
+    raise SystemExit(1)
+"
 
       # Step 12: Upload to TestPyPI (when pushing to testpypi branch)
       - name: Upload to TestPyPI
@@ -159,9 +164,8 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_NNDEPLOY_TOKEN }}
         run: |
-          cd python
-          twine check dist/*
-          twine upload --repository-url https://test.pypi.org/legacy/ dist/*.whl
+          twine check python/auditwheel_dist/*
+          twine upload --repository-url https://test.pypi.org/legacy/ python/auditwheel_dist/*.whl
 
       - name: Upload to PyPI manual
         if: github.ref == 'refs/heads/pypi'
@@ -169,9 +173,8 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_NNDEPLOY_TOKEN }}
         run: |
-          cd python
-          twine check dist/*
-          twine upload dist/*.whl
+          twine check python/auditwheel_dist/*
+          twine upload python/auditwheel_dist/*.whl
 
       # Step 13: Upload to official PyPI (when publishing Release)
       - name: Upload to PyPI
@@ -180,9 +183,8 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_NNDEPLOY_TOKEN }}
         run: |
-          cd python
-          twine check dist/*
-          twine upload dist/*.whl
+          twine check python/auditwheel_dist/*
+          twine upload python/auditwheel_dist/*.whl
 
       # Step 14: Upload build artifacts
       - name: Upload build artifacts

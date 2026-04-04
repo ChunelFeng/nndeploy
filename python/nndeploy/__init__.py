@@ -6,7 +6,10 @@ package_dir = os.path.dirname(os.path.abspath(__file__))
 
 # 根据不同平台设置库搜索路径
 if sys.platform == 'win32':
-    # Windows使用PATH环境变量
+    # Windows优先通过显式DLL搜索目录加载包内依赖
+    if hasattr(os, "add_dll_directory"):
+        os.add_dll_directory(package_dir)
+    # 保留PATH作为兼容性兜底
     if package_dir not in os.environ.get('PATH', '').split(';'):
         os.environ['PATH'] = f"{package_dir};{os.environ.get('PATH', '')}"
 elif sys.platform == 'darwin':

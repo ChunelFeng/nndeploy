@@ -483,16 +483,25 @@ endif()
 install(CODE "
   # 定义不同平台的动态库扩展名
   if(WIN32)
-    set(LIB_EXTENSIONS \"*.dll\" \"*.dll.*\" \"*.lib\" \"*.lib.*\" \"*.pyd\" \"*.pyd.*\")
+    set(LIB_EXTENSIONS \"*.dll\" \"*.dll.*\" \"*.pyd\" \"*.pyd.*\")
   elseif(APPLE)
     set(LIB_EXTENSIONS \"*.dylib\" \"*.dylib.*\" \"*.so\" \"*.so.*\")
   else()
     set(LIB_EXTENSIONS \"*.so\" \"*.so.*\")
   endif()
   set(SEARCH_PATHS \"${NNDEPLOY_INSTALL_PATH}\")
+  set(PYTHON_PACKAGE_DIR \"${PROJECT_SOURCE_DIR}/python/nndeploy\")
   
   # 确保目标目录存在
-  file(MAKE_DIRECTORY \"${PROJECT_SOURCE_DIR}/python/nndeploy\")
+  file(MAKE_DIRECTORY \"\${PYTHON_PACKAGE_DIR}\")
+
+  # 清理旧的动态库，避免把上一次构建残留打进wheel
+  foreach(ext IN LISTS LIB_EXTENSIONS)
+    file(GLOB OLD_DYNAMIC_LIBS \"\${PYTHON_PACKAGE_DIR}/\${ext}\")
+    if(OLD_DYNAMIC_LIBS)
+      file(REMOVE \${OLD_DYNAMIC_LIBS})
+    endif()
+  endforeach()
   
   # 递归搜索并拷贝动态库
   foreach(search_path IN LISTS SEARCH_PATHS)
@@ -500,26 +509,22 @@ install(CODE "
       foreach(ext IN LISTS LIB_EXTENSIONS)
         file(GLOB_RECURSE DYNAMIC_LIBS \"\${search_path}/\${ext}\")
         foreach(lib_file IN LISTS DYNAMIC_LIBS)
-          # 检查是否为软连接，如果是则跳过
-          if(NOT IS_SYMLINK \"\${lib_file}\")
-            get_filename_component(lib_name \"\${lib_file}\" NAME)
-            message(STATUS \"Copying dynamic library: \${lib_name}\")
-            file(COPY \"\${lib_file}\" 
-                 DESTINATION \"${PROJECT_SOURCE_DIR}/python/nndeploy\")
-          else()
-            get_filename_component(lib_name \"\${lib_file}\" NAME)
-            # 检查是否为opencv库文件，如果是则仍然拷贝
-            if(\"\${lib_name}\" MATCHES \"^libopencv_.*\\.so\\.\")
-              message(STATUS \"Copying opencv symlink library: \${lib_name}\")
-              file(COPY \"\${lib_file}\" 
-                   DESTINATION \"${PROJECT_SOURCE_DIR}/python/nndeploy\")
-            elseif(\"\${lib_name}\" MATCHES \"^libopencv_.*\\.*\\.dylib\")
-              message(STATUS \"Copying opencv symlink library: \${lib_name}\")
-              file(COPY \"\${lib_file}\" 
-                   DESTINATION \"${PROJECT_SOURCE_DIR}/python/nndeploy\")
-            else()
-              message(STATUS \"Skipping symlink: \${lib_name}\")
+          get_filename_component(lib_name \"\${lib_file}\" NAME)
+          if(IS_SYMLINK \"\${lib_file}\")
+            file(READ_SYMLINK \"\${lib_file}\" real_lib_file)
+            if(NOT IS_ABSOLUTE \"\${real_lib_file}\")
+              get_filename_component(lib_dir \"\${lib_file}\" DIRECTORY)
+              set(real_lib_file \"\${lib_dir}/\${real_lib_file}\")
             endif()
+            message(STATUS \"Copying symlink target as regular file: \${lib_name}\")
+            execute_process(
+              COMMAND \"${CMAKE_COMMAND}\" -E copy_if_different \"\${real_lib_file}\" \"\${PYTHON_PACKAGE_DIR}/\${lib_name}\"
+            )
+          else()
+            message(STATUS \"Copying dynamic library: \${lib_name}\")
+            execute_process(
+              COMMAND \"${CMAKE_COMMAND}\" -E copy_if_different \"\${lib_file}\" \"\${PYTHON_PACKAGE_DIR}/\${lib_name}\"
+            )
           endif()
         endforeach()
       endforeach()

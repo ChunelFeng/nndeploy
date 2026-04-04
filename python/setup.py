@@ -215,7 +215,8 @@ def get_internal_so_path():
     for ext in extensions:
         pattern = os.path.join(search_path, f"*{ext}*")  # Add * to match versioned suffixes
         matches = glob.glob(pattern)
-        all_matches.extend(matches)
+        all_matches.extend(match for match in matches if os.path.isfile(match))
+    all_matches = sorted(set(all_matches))
     
     if not all_matches:
         raise FileNotFoundError(f"No dynamic library files found in {search_path} directory")
@@ -261,6 +262,8 @@ def get_internal_so_path():
         
     # Establish dynamic library link relationships on Linux and macOS
     if platform.system() != "Windows":
+        install_name_tool = shutil.which("install_name_tool")
+        patchelf = shutil.which("patchelf")
         for lib_path in all_matches:
             try:
                 # Use ldd/otool to view dependencies
@@ -274,8 +277,11 @@ def get_internal_so_path():
                 
                 # Set rpath
                 if platform.system() == "Darwin":
+                    if not install_name_tool:
+                        print("Warning: install_name_tool not found, skipping macOS rpath fixups")
+                        break
                     # First add @loader_path to rpath
-                    subprocess.run(["install_name_tool", "-add_rpath", "@loader_path", lib_path], check=False) 
+                    subprocess.run([install_name_tool, "-add_rpath", "@loader_path", lib_path], check=False) 
                     try:
                         # Check current library dependencies
                         result = subprocess.run(["otool", "-L", lib_path], 
@@ -294,7 +300,7 @@ def get_internal_so_path():
 
                                 # Change @rpath to @loader_path
                                 subprocess.run([
-                                    "install_name_tool", "-change", 
+                                    install_name_tool, "-change", 
                                     dylib_path,
                                     f"@loader_path/{dylib_name}", 
                                     lib_path
@@ -308,13 +314,13 @@ def get_internal_so_path():
                             print(f"Detected macOS {macos_version}, applying compatibility fixes")
                             
                             # Add additional rpath paths for older macOS versions
-                            subprocess.run(["install_name_tool", "-add_rpath", "@executable_path", lib_path], check=False)
-                            subprocess.run(["install_name_tool", "-add_rpath", ".", lib_path], check=False)
+                            subprocess.run([install_name_tool, "-add_rpath", "@executable_path", lib_path], check=False)
+                            subprocess.run([install_name_tool, "-add_rpath", ".", lib_path], check=False)
                             
                             # Check and fix library ID
                             lib_name = os.path.basename(lib_path)
                             subprocess.run([
-                                "install_name_tool", "-id", 
+                                install_name_tool, "-id", 
                                 f"@loader_path/{lib_name}", 
                                 lib_path
                             ], check=False)
@@ -322,7 +328,10 @@ def get_internal_so_path():
                     except Exception as e:
                         print(f"Warning: macOS dynamic library path fixing failed for {lib_path}: {e}")
                 else:
-                    subprocess.run(["patchelf", "--set-rpath", "$ORIGIN", lib_path])
+                    if not patchelf:
+                        print("Warning: patchelf not found, skipping Linux rpath fixups")
+                        break
+                    subprocess.run([patchelf, "--set-rpath", "$ORIGIN", lib_path], check=False)
             except Exception as e:
                 print(f"Warning: Error processing {lib_path}: {e}")
                 
