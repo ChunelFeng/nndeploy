@@ -124,17 +124,17 @@ jobs:
           %TEMP%\nndeploy-wheel-test\Scripts\python.exe -m pip install --upgrade pip
           %TEMP%\nndeploy-wheel-test\Scripts\python.exe -m pip install python\wheelhouse\*.whl
           %TEMP%\nndeploy-wheel-test\Scripts\python.exe -c "
-import platform
-try:
-    import nndeploy
-    print(f'[ok] Successfully imported nndeploy {nndeploy.__version__}')
-    print(f'Platform: {platform.platform()}')
-    print(f'Architecture: {platform.machine()}')
-    print(f'Python version: {platform.python_version()}')
-except ImportError as e:
-    print(f'[failed] Import failed: {e}')
-    raise SystemExit(1)
-"
+          import platform
+          try:
+              import nndeploy
+              print(f'[ok] Successfully imported nndeploy {nndeploy.__version__}')
+              print(f'Platform: {platform.platform()}')
+              print(f'Architecture: {platform.machine()}')
+              print(f'Python version: {platform.python_version()}')
+          except ImportError as e:
+              print(f'[failed] Import failed: {e}')
+              raise SystemExit(1)
+          "
 
       # Step 12: Upload to TestPyPI (when pushing to testpypi branch)
       - name: Upload to TestPyPI

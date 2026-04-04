@@ -193,20 +193,20 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install python/wheelhouse/*.whl
           python -c "
-import platform
-try:
-    import nndeploy
-    print(f'✓ Successfully imported nndeploy {nndeploy.__version__}')
-    print(f'Platform: {platform.platform()}')
-    print(f'Architecture: {platform.machine()}')
-    print(f'Python version: {platform.python_version()}')
-    print(f'macOS runner: ${{ matrix.os }}')
-    print(f'Target architecture: ${{ matrix.arch }}')
-    print('✓ Package import verification completed')
-except ImportError as e:
-    print(f'✗ Import failed: {e}')
-    raise SystemExit(1)
-"
+          import platform
+          try:
+              import nndeploy
+              print(f'✓ Successfully imported nndeploy {nndeploy.__version__}')
+              print(f'Platform: {platform.platform()}')
+              print(f'Architecture: {platform.machine()}')
+              print(f'Python version: {platform.python_version()}')
+              print(f'macOS runner: ${{ matrix.os }}')
+              print(f'Target architecture: ${{ matrix.arch }}')
+              print('✓ Package import verification completed')
+          except ImportError as e:
+              print(f'✗ Import failed: {e}')
+              raise SystemExit(1)
+          "
 
       # Step 13: Upload to TestPyPI (when pushing to testpypi branch)
       - name: Upload to TestPyPI
