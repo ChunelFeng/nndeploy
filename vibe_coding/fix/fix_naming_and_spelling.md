@@ -1,3 +1,17 @@
+---
+name: fix_naming_and_spelling
+title: 命名和拼写问题修正
+description: 修正代码中的拼写错误和不一致命名，提高代码可读性和专业性
+category: [fix]
+difficulty: easy
+priority: P3
+status: planned
+version: 1.0.0
+tags: [naming, spelling, code_quality]
+estimated_time: 2h
+files_affected: [framework/include/nndeploy/base/common.h, framework/source/nndeploy/inference.cc, framework/source/nndeploy/dag/executor/condition_executor.cc, framework/source/nndeploy/dag/edge/data_packet.cc]
+---
+
 # Feature: 命名和拼写问题修正
 
 ## 1. 背景（是什么 && 为什么）

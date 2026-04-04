@@ -1,3 +1,17 @@
+---
+name: feature_reducer
+title: 状态更新策略（Reducer 模式）
+description: 支持灵活的DAG边数据更新策略，提供overwrite、append_list、add_messages、merge_map等多种内置reducer和自定义reducer函数
+category: [feature]
+difficulty: easy
+priority: P3
+status: planned
+version: 1.0.0
+tags: [dag, edge, reducer, state, data-merge]
+estimated_time: 4h
+files_affected: [framework/include/nndeploy/dag/edge.h, framework/source/nndeploy/dag/edge.cc, framework/include/nndeploy/dag/reducer.h, framework/source/nndeploy/dag/reducer.cc]
+---
+
 # Feature: 状态更新策略（Reducer 模式）
 
 ## 1. 背景（是什么 && 为什么）

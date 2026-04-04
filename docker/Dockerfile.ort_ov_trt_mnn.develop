@@ -1,0 +1,53 @@
+FROM nvcr.io/nvidia/tensorrt:22.12-py3
+
+WORKDIR /workspace
+
+# ---- Install System Deps ----
+RUN apt-get update && apt-get install -y \
+    build-essential cmake ninja-build git wget curl pkg-config \
+    software-properties-common \
+    libopencv-dev protobuf-compiler \
+    ca-certificates gnupg lsb-release \
+    libglib2.0-0 libsm6 libxext6 libxrender-dev libgl1-mesa-glx \
+    && rm -rf /var/lib/apt/lists/*
+
+# ---- Use default Python 3.8 from TensorRT image ----
+RUN python3 --version && \
+    pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade pip setuptools wheel
+
+# ---- Install Python Library ----
+RUN pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple pybind11 setuptools wheel cython requests pathlib packaging numpy tqdm
+
+# ---- Install Rust (Optional, for tokenizers-cpp) - SKIPPED for faster build ----
+# Uncomment if you need tokenizers-cpp support
+# RUN curl https://sh.rustup.rs -sSf | bash -s -- -y \
+#     && . "$HOME/.cargo/env" \
+#     && rustup install 1.88.0 \
+#     && rustup default 1.88.0 \
+#     && rustup target add x86_64-unknown-linux-gnu
+# ENV PATH="/root/.cargo/bin:${PATH}"
+
+# ---- Prepare workspace for local source mount ----
+# Note: Source code will be mounted at /workspace via -v or --mount when running container
+# The following directories will be created to support the mount
+
+RUN mkdir -p /workspace/tool/script/download
+RUN mkdir -p /workspace/build
+RUN mkdir -p /workspace/python
+
+# ---- Install OpenVINO from Intel Repository ----
+RUN mkdir -p /etc/apt/keyrings && \
+    wget -qO- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | \
+    gpg --dearmor -o /etc/apt/keyrings/intel-sw-products.gpg && \
+    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/intel-sw-products.gpg] https://apt.repos.intel.com/openvino/2023 ubuntu20 main" | \
+    tee /etc/apt/sources.list.d/intel-openvino-2023.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libopenvino-2023.1.0 \
+        libopenvino-dev-2023.1.0 \
+        python3-openvino-2023.1.0 && \
+    rm -rf /var/lib/apt/lists/*
+
+# ---- Default Interface ----
+WORKDIR /workspace/
+CMD ["/bin/bash"]

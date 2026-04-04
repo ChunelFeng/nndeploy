@@ -1,3 +1,17 @@
+---
+name: feature_callback_system
+title: 完整回调系统
+description: 为DAG执行节点提供生命周期钩子、多处理器支持和异步回调能力，用于监控、日志、追踪等场景
+category: [feature]
+difficulty: medium
+priority: P2
+status: planned
+version: 1.0.0
+tags: [dag, callback, executor, lifecycle, monitoring, tracing]
+estimated_time: 8h
+files_affected: [framework/include/nndeploy/dag/callback.h, framework/source/nndeploy/dag/callback.cc, framework/include/nndeploy/dag/executor.h, framework/include/nndeploy/dag/graph_runner.h]
+---
+
 # Feature: 完整回调系统
 
 ## 1. 背景（是什么 && 为什么）

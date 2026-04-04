@@ -1,3 +1,17 @@
+---
+name: feature_event_driven
+title: 事件驱动执行
+description: 实现基于事件的DAG执行模式，支持事件定义、订阅发布机制、事件驱动执行器和异步事件处理
+category: [feature]
+difficulty: medium
+priority: P2
+status: planned
+version: 1.0.0
+tags: [dag, event, executor, event-driven, async, pub-sub]
+estimated_time: 8h
+files_affected: [framework/include/nndeploy/dag/event.h, framework/source/nndeploy/dag/event.cc, framework/include/nndeploy/dag/event_executor.h, framework/source/nndeploy/dag/event_executor.cc]
+---
+
 # Feature: 事件驱动执行
 
 ## 1. 背景（是什么 && 为什么）

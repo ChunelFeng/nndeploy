@@ -1,3 +1,17 @@
+---
+name: fix_condition_executor_bounds
+title: ConditionExecutor::process数组越界检查修复
+description: 在ConditionExecutor::process中添加数组边界检查，防止数组越界访问导致的崩溃
+category: [fix]
+difficulty: easy
+priority: P2
+status: planned
+version: 1.0.0
+tags: [safety, bounds_check, executor]
+estimated_time: 2h
+files_affected: [framework/source/nndeploy/dag/executor/condition_executor.cc]
+---
+
 # Feature: ConditionExecutor::process 数组越界检查修复
 
 ## 1. 背景（是什么 && 为什么）

@@ -1,3 +1,17 @@
+---
+name: feature_edge_default_value
+title: 边 Edge 默认值支持
+description: 为DAG边添加默认值机制，支持常量、Tensor、节点输出和表达式等多种默认值类型，提高工作流灵活性
+category: [feature]
+difficulty: medium
+priority: P3
+status: planned
+version: 1.0.0
+tags: [dag, edge, default-value, data-packet, pipeline]
+estimated_time: 8h
+files_affected: [framework/include/nndeploy/dag/edge.h, framework/include/nndeploy/dag/edge/data_packet.h, framework/source/nndeploy/dag/edge.cc, framework/source/nndeploy/dag/edge/data_packet.cc, framework/source/nndeploy/dag/edge/pipeline_edge.cc]
+---
+
 # Feature: 边 Edge 默认值支持
 
 ## 1. 背景（是什么 && 为什么）

@@ -1,3 +1,17 @@
+---
+name: feature_human_feedback
+title: 人类反馈能力（Human-in-the-Loop）
+description: 支持DAG执行过程中暂停等待人类反馈，提供Approval、Correction、Skip、Reroute、Terminate五种反馈类型和断点续执行能力
+category: [feature]
+difficulty: medium
+priority: P2
+status: planned
+version: 1.0.0
+tags: [dag, human-in-the-loop, feedback, checkpoint, interrupt, resume]
+estimated_time: 8h
+files_affected: [framework/include/nndeploy/dag/human_feedback.h, framework/source/nndeploy/dag/human_feedback.cc, framework/include/nndeploy/dag/node.h, framework/include/nndeploy/dag/executor.h]
+---
+
 # Feature: 人类反馈能力（Human-in-the-Loop）
 
 ## 1. 背景（是什么 && 为什么）

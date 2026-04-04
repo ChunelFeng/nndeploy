@@ -1,3 +1,17 @@
+---
+name: fix_tensor_copyto
+title: Tensor::copyTo临时对象RAII管理优化
+description: 使用智能指针管理Tensor::copyTo中的临时对象，确保异常安全
+category: [fix]
+difficulty: easy
+priority: P2
+status: planned
+version: 1.0.0
+tags: [tensor, memory, smart_pointer, raii]
+estimated_time: 2h
+files_affected: [framework/source/nndeploy/device/tensor.cc]
+---
+
 # Feature: Tensor::copyTo 临时对象 RAII 管理优化
 
 ## 1. 背景（是什么 && 为什么）

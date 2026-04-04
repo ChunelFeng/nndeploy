@@ -1,3 +1,17 @@
+---
+name: fix_maybe_destructor
+title: Maybe<T>虚析构函数优化
+description: 去掉Maybe<T>模板类中不必要的虚析构函数，减少vtable开销
+category: [fix]
+difficulty: easy
+priority: P3
+status: planned
+version: 1.0.0
+tags: [code_quality, performance, maybe]
+estimated_time: 2h
+files_affected: [framework/include/nndeploy/base/status.h]
+---
+
 # Feature: Maybe<T> 虚析构函数优化
 
 ## 1. 背景（是什么 && 为什么）

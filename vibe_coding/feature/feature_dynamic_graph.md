@@ -1,3 +1,17 @@
+---
+name: feature_dynamic_graph
+title: 动态图修改
+description: 支持运行时动态添加/删除节点和边，提供事务性修改、快照回滚和修改历史追踪能力
+category: [feature]
+difficulty: hard
+priority: P2
+status: planned
+version: 1.0.0
+tags: [dag, graph, dynamic, transaction, rollback, snapshot]
+estimated_time: 16h
+files_affected: [framework/include/nndeploy/dag/graph.h, framework/source/nndeploy/dag/graph.cc, framework/include/nndeploy/dag/graph_transaction.h, framework/source/nndeploy/dag/graph_transaction.cc]
+---
+
 # Feature: 动态图修改
 
 ## 1. 背景（是什么 && 为什么）

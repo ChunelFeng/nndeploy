@@ -1,3 +1,17 @@
+---
+name: feature_node_skill_tool_doc
+title: 节点 Skill、Tool、Doc 能力增强
+description: 为DAG节点添加结构化的能力描述（Skill）、外部工具接口（Tool）和文档元数据（Doc），支持自动化发现和调用
+category: [feature]
+difficulty: medium
+priority: P3
+status: planned
+version: 1.0.0
+tags: [dag, node, skill, tool, doc, registry, agent]
+estimated_time: 8h
+files_affected: [framework/include/nndeploy/dag/node.h, framework/source/nndeploy/dag/node.cc, framework/include/nndeploy/dag/graph.h, framework/source/nndeploy/dag/graph.cc, framework/include/nndeploy/dag/registry.h]
+---
+
 # Feature: 节点 Skill、Tool、Doc 能力增强
 
 ## 1. 背景（是什么 && 为什么）

@@ -1,3 +1,17 @@
+---
+name: fix_tensor_deallocate
+title: Tensor::deallocate引用计数问题修复
+description: 修复Tensor::deallocate的线程安全问题，防止多线程环境下的内存泄漏和双重释放
+category: [fix]
+difficulty: medium
+priority: P1
+status: planned
+version: 1.0.0
+tags: [memory, tensor, concurrent, thread_safety, reference_count]
+estimated_time: 4h
+files_affected: [framework/source/nndeploy/device/tensor.cc]
+---
+
 # Feature: Tensor::deallocate 引用计数问题修复
 
 ## 1. 背景（是什么 && 为什么）

@@ -1,3 +1,17 @@
+---
+name: fix_casting_and_safety
+title: 类型转换和安全检查优化
+description: 用C++风格转换替代C风格转换，为dynamic_cast添加空指针检查
+category: [fix]
+difficulty: medium
+priority: P2
+status: planned
+version: 1.0.0
+tags: [safety, casting, code_quality]
+estimated_time: 4h
+files_affected: [framework/source/nndeploy/dag/edge/data_packet.cc, framework/source/nndeploy/dag/executor/condition_executor.cc, framework/source/nndeploy/dag/edge.cc]
+---
+
 # Feature: 类型转换和安全检查优化
 
 ## 1. 背景（是什么 && 为什么）

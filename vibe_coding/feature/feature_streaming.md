@@ -1,3 +1,17 @@
+---
+name: feature_streaming
+title: 流式输出（Streaming）机制
+description: 支持DAG执行过程中实时推送中间结果，提供Token级别、消息级别、事件级别流式输出，支持WebSocket和SSE传输
+category: [feature]
+difficulty: medium
+priority: P2
+status: planned
+version: 1.0.0
+tags: [dag, streaming, llm, websocket, sse, real-time]
+estimated_time: 8h
+files_affected: [framework/include/nndeploy/dag/stream.h, framework/source/nndeploy/dag/stream.cc, framework/include/nndeploy/dag/node.h, framework/include/nndeploy/dag/executor.h]
+---
+
 # Feature: 流式输出（Streaming）机制
 
 ## 1. 背景（是什么 && 为什么）

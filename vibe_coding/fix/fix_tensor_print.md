@@ -1,3 +1,17 @@
+---
+name: fix_tensor_print
+title: Tensor::print中host_buffer重复创建问题修复
+description: 修复Tensor::print中host_buffer管理不一致的问题，使用RAII统一资源管理
+category: [fix]
+difficulty: easy
+priority: P2
+status: planned
+version: 1.0.0
+tags: [tensor, print, raii, memory]
+estimated_time: 2h
+files_affected: [framework/source/nndeploy/device/tensor.cc]
+---
+
 # Feature: Tensor::print 中 host_buffer 重复创建问题修复
 
 ## 1. 背景（是什么 && 为什么）

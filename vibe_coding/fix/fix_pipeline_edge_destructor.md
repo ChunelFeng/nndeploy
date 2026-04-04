@@ -1,3 +1,17 @@
+---
+name: fix_pipeline_edge_destructor
+title: PipelineEdge析构函数线程通知修复
+description: 修复PipelineEdge析构函数中未通知等待线程的问题，防止死锁
+category: [fix]
+difficulty: medium
+priority: P1
+status: planned
+version: 1.0.0
+tags: [concurrent, edge, thread_safety, deadlock]
+estimated_time: 4h
+files_affected: [framework/source/nndeploy/dag/edge/pipeline_edge.cc, framework/source/nndeploy/dag/edge/data_packet.cc]
+---
+
 # Feature: PipelineEdge 析构函数线程通知修复
 
 ## 1. 背景（是什么 && 为什么）

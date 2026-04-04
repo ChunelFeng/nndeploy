@@ -1,3 +1,17 @@
+---
+name: fix_encapsulation_and_cleanup
+title: 封装性和代码清理优化
+description: 改善NodeWrapper和EdgeWrapper的封装性，清理注释代码，添加移动语义优化
+category: [fix]
+difficulty: medium
+priority: P3
+status: planned
+version: 1.0.0
+tags: [code_quality, encapsulation, cleanup]
+estimated_time: 4h
+files_affected: [framework/include/nndeploy/dag/util.h]
+---
+
 # Feature: 封装性和代码清理优化
 
 ## 1. 背景（是什么 && 为什么）

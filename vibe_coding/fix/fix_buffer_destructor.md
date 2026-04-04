@@ -1,3 +1,17 @@
+---
+name: fix_buffer_destructor
+title: Buffer析构函数线程安全问题修复
+description: 修复Buffer析构函数线程安全问题，防止多线程环境下的内存泄漏和双重释放
+category: [fix]
+difficulty: medium
+priority: P1
+status: planned
+version: 1.0.0
+tags: [memory, buffer, concurrent, thread_safety, reference_count]
+estimated_time: 4h
+files_affected: [framework/source/nndeploy/device/buffer.cc]
+---
+
 # Feature: Buffer 析构函数线程安全问题修复
 
 ## 1. 背景（是什么 && 为什么）

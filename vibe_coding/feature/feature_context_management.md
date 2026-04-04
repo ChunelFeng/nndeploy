@@ -1,3 +1,17 @@
+---
+name: feature_context_management
+title: 执行上下文（Context）管理
+description: 提供统一的上下文管理机制，支持执行栈追踪、参数传递、线程安全访问和嵌套上下文
+category: [feature]
+difficulty: easy
+priority: P2
+status: planned
+version: 1.0.0
+tags: [dag, context, executor, thread-safe, tracing]
+estimated_time: 4h
+files_affected: [framework/include/nndeploy/dag/context.h, framework/source/nndeploy/dag/context.cc, framework/include/nndeploy/dag/executor.h, framework/include/nndeploy/dag/graph_runner.h]
+---
+
 # Feature: 执行上下文（Context）管理
 
 ## 1. 背景（是什么 && 为什么）

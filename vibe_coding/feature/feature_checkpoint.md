@@ -1,3 +1,17 @@
+---
+name: feature_checkpoint
+title: 状态持久化（Checkpoint）机制
+description: 支持图执行状态的保存和恢复，实现断点续执行能力，支持内存和Redis多种存储后端
+category: [feature]
+difficulty: medium
+priority: P2
+status: planned
+version: 1.0.0
+tags: [dag, checkpoint, persistence, graph, redis]
+estimated_time: 8h
+files_affected: [framework/include/nndeploy/dag/checkpoint.h, framework/source/nndeploy/dag/checkpoint.cc, framework/include/nndeploy/dag/graph.h, framework/include/nndeploy/dag/graph_runner.h]
+---
+
 # Feature: 状态持久化（Checkpoint）机制
 
 ## 1. 背景（是什么 && 为什么）

@@ -1,3 +1,17 @@
+---
+name: feature_message_history
+title: 消息历史管理
+description: 提供统一的对话上下文管理能力，支持消息格式标准化、历史存储检索、窗口管理和持久化，适用于多轮对话LLM场景
+category: [feature]
+difficulty: easy
+priority: P2
+status: planned
+version: 1.0.0
+tags: [dag, message, llm, history, context, checkpoint]
+estimated_time: 4h
+files_affected: [framework/include/nndeploy/dag/message.h, framework/source/nndeploy/dag/message.cc, framework/include/nndeploy/dag/checkpoint.h]
+---
+
 # Feature: 消息历史管理
 
 ## 1. 背景（是什么 && 为什么）

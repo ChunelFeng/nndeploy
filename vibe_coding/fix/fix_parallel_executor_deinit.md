@@ -1,3 +1,17 @@
+---
+name: fix_parallel_executor_deinit
+title: ParallelTaskExecutor::deinit线程同步问题修复
+description: 修复ParallelTaskExecutor::deinit中销毁线程池前未等待工作完成的线程同步问题
+category: [fix]
+difficulty: medium
+priority: P1
+status: planned
+version: 1.0.0
+tags: [concurrent, executor, thread_safety, lifecycle]
+estimated_time: 4h
+files_affected: [framework/source/nndeploy/dag/executor/parallel_task_executor.cc]
+---
+
 # Feature: ParallelTaskExecutor::deinit 线程同步问题修复
 
 ## 1. 背景（是什么 && 为什么）

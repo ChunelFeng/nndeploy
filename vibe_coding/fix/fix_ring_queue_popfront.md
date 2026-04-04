@@ -1,3 +1,17 @@
+---
+name: fix_ring_queue_popfront
+title: RingQueue::popFront返回值语义修复
+description: 修复RingQueue::popFront无法区分空队列和成功值的问题，提供更安全的API
+category: [fix]
+difficulty: easy
+priority: P2
+status: planned
+version: 1.0.0
+tags: [api_safety, ring_queue, optional]
+estimated_time: 2h
+files_affected: [framework/include/nndeploy/base/ring_queue.h]
+---
+
 # Feature: RingQueue::popFront 返回值语义修复
 
 ## 1. 背景（是什么 && 为什么）

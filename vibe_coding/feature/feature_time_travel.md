@@ -1,3 +1,17 @@
+---
+name: feature_time_travel
+title: 时间旅行（Time Travel）
+description: 支持图执行状态的版本管理和历史追踪，可以回退到任意检查点、创建分支执行和比较版本差异
+category: [feature]
+difficulty: hard
+priority: P3
+status: planned
+version: 1.0.0
+tags: [dag, time-travel, checkpoint, version, branch, history]
+estimated_time: 16h
+files_affected: [framework/include/nndeploy/dag/time_travel.h, framework/source/nndeploy/dag/time_travel.cc, framework/include/nndeploy/dag/checkpoint.h, framework/include/nndeploy/dag/graph_runner.h]
+---
+
 # Feature: 时间旅行（Time Travel）
 
 ## 1. 背景（是什么 && 为什么）

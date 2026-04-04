@@ -1,3 +1,17 @@
+---
+name: fix_edge_gettypename
+title: Edge::getTypeName空指针检查修复
+description: 在Edge::getTypeName中添加空指针检查，防止空指针解引用导致的崩溃
+category: [fix]
+difficulty: easy
+priority: P2
+status: planned
+version: 1.0.0
+tags: [safety, null_pointer, edge]
+estimated_time: 2h
+files_affected: [framework/source/nndeploy/dag/edge.cc]
+---
+
 # Feature: Edge::getTypeName 空指针检查修复
 
 ## 1. 背景（是什么 && 为什么）

@@ -82,7 +82,7 @@ nndeploy 是一款简单易用和高性能的AI部署框架。基于可视化工
   | [SNPE](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk)   | 高通骁龙 NPU 推理框架    | ✅   |
   | [TVM](https://github.com/apache/tvm)                                             | 深度学习编译栈           | ✅   |
   | [PyTorch](https://pytorch.org/)                                                  | 快速原型/云端落地        | ✅   |
-  | [内部推理子模块](docs/zh_cn/inference/README_INFERENCE.md)                        | 缺省推理框架             | ✅   |
+  | [内部推理子模块](docs/zh_cn/introduction/README_INFERENCE.md)                        | 缺省推理框架             | ✅   |
 
 ### **开箱即用的算法**
 
