@@ -16,7 +16,7 @@ enum PixelType : int {
   kPixelTypeRGBA,
   kPixelTypeBGRA,
 
-  // not sopport
+  // not support
   kPixelTypeNotSupport,
 };
 
@@ -46,7 +46,7 @@ enum CvtColorType : int {
   kCvtColorTypeBGR2BGRA,
   kCvtColorTypeRGBA2BGRA,
 
-  // not sopport
+  // not support
   kCvtColorTypeNotSupport,
 };
 
@@ -63,7 +63,7 @@ enum InterpType : int {
    * zoomed, it is similar to the INTER_NEAREST method.
    **/
   kInterpTypeArer,
-  // not sopport
+  // not support
   kInterpTypeNotSupport,
 };
 
@@ -72,7 +72,7 @@ enum BorderType : int {
   kBorderTypeReflect,
   kBorderTypeEdge,
 
-  // not sopport
+  // not support
   kBorderTypeNotSupport,
 };
 

@@ -2,6 +2,8 @@
 
 #include "nndeploy/device/tensor.h"
 
+#include <memory>
+
 #include "nndeploy/base/shape.h"
 #include "nndeploy/base/string.h"
 #include "nndeploy/base/time_profiler.h"
@@ -419,19 +421,14 @@ base::Status Tensor::copyTo(Tensor *dst) {
       return base::kStatusCodeErrorNotImplement;
     }
 
-    // Create temporary Host buffer as intermediate
-    Tensor *host_tensor =
-        new Tensor(host_device, this->getDesc(), "temp_host_tensor");
-    if (!host_tensor) {
-      NNDEPLOY_LOGE("Failed to create temporary Host tensor");
-      return base::kStatusCodeErrorOutOfMemory;
-    }
+    // Use RAII for the intermediate tensor so cleanup is guaranteed on errors.
+    std::unique_ptr<Tensor> host_tensor(
+        new Tensor(host_device, this->getDesc(), "temp_host_tensor"));
 
     // First copy from source device to Host
-    base::Status status = this->copyTo(host_tensor);
+    base::Status status = this->copyTo(host_tensor.get());
     if (status != base::kStatusCodeOk) {
       NNDEPLOY_LOGE("Failed to copy from source device to Host");
-      delete host_tensor;
       return status;
     }
 
@@ -439,12 +436,9 @@ base::Status Tensor::copyTo(Tensor *dst) {
     status = host_tensor->copyTo(dst);
     if (status != base::kStatusCodeOk) {
       NNDEPLOY_LOGE("Failed to copy from Host to destination device");
-      delete host_tensor;
       return status;
     }
 
-    // Clean up temporary resources
-    delete host_tensor;
     // NNDEPLOY_TIME_POINT_END(name.c_str());
     return status;
   }
@@ -811,16 +805,20 @@ void Tensor::print(std::ostream &stream) const {
   if (ref_count_ != nullptr && buffer_ != nullptr) {
     stream << "ref_count: " << ref_count_[0] << std::endl;
     Device *host_device = getDefaultHostDevice();
-    Buffer *host_buffer = nullptr;
+    std::unique_ptr<Buffer> host_buffer_owner;
+    Buffer *host_buffer = buffer_;
     if (!device::isHostDeviceType(this->getDeviceType())) {
-      host_buffer = new Buffer(host_device, this->getBufferDesc());
+      host_buffer_owner.reset(new Buffer(host_device, this->getBufferDesc()));
+      host_buffer = host_buffer_owner.get();
       if (host_buffer == nullptr) {
         NNDEPLOY_LOGE("host_buffer is empty");
         return;
       }
-      buffer_->copyTo(host_buffer);
-    } else {
-      host_buffer = buffer_;
+      base::Status status = buffer_->copyTo(host_buffer);
+      if (status != base::kStatusCodeOk) {
+        NNDEPLOY_LOGE("buffer_->copyTo(host_buffer) failed");
+        return;
+      }
     }
     size_t size = host_buffer->getSize();
     size_t ele_size = data_type.size();
@@ -873,10 +871,6 @@ void Tensor::print(std::ostream &stream) const {
       free(fp32);
     } else {
       NNDEPLOY_LOGE("data type is not support");
-    }
-
-    if (!device::isHostDeviceType(this->getDeviceType())) {
-      delete host_buffer;
     }
   }
 

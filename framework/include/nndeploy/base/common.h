@@ -17,7 +17,7 @@ enum DataTypeCode : uint8_t {
   kDataTypeCodeBFp,
   // opaque handle
   kDataTypeCodeOpaqueHandle,
-  // not sopport
+  // not support
   kDataTypeCodeNotSupport,
 };
 
@@ -102,7 +102,7 @@ enum DeviceTypeCode : int {
   kDeviceTypeCodeMtkNpu,
   kDeviceTypeCodeSophonNpu,
 
-  // not sopport
+  // not support
   kDeviceTypeCodeNotSupport,
 };
 
@@ -160,7 +160,7 @@ enum DataFormat : int {
   // auto
   kDataFormatAuto,
 
-  // not sopport
+  // not support
   kDataFormatNotSupport,
 };
 
@@ -170,7 +170,7 @@ enum PrecisionType : int {
   kPrecisionTypeFp32,
   kPrecisionTypeFp64,
 
-  // not sopport
+  // not support
   kPrecisionTypeNotSupport,
 };
 
@@ -179,7 +179,7 @@ enum PowerType : int {
   kPowerTypeNormal,
   kPowerTypeLow,
 
-  // not sopport
+  // not support
   kPowerTypeNotSupport,
 };
 
@@ -187,7 +187,7 @@ enum ShareMemoryType : int {
   kShareMemoryTypeNoShare = 0x0000,
   kShareMemoryTypeShareFromExternal,
 
-  // not sopport
+  // not support
   kShareMemoryTypeNotSupport,
 };
 
@@ -224,7 +224,7 @@ enum ForwardOpType : int {
   kForwardOpTypeCudnn,
   kForwardOpTypeAclOp,
 
-  // not sopport
+  // not support
   kForwardOpTypeNotSupport,
 };
 
@@ -277,7 +277,7 @@ enum ModelType : int {
   // gguf
   kModelTypeGGUF,
 
-  // not sopport
+  // not support
   kModelTypeNotSupport,
 };
 
@@ -325,7 +325,7 @@ enum InferenceType : int {
   kInferenceTypeDiffusers,
   kInferenceTypeDiff,
 
-  // not sopport
+  // not support
   kInferenceTypeNotSupport,
 };
 
