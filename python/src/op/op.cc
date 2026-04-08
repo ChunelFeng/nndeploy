@@ -210,6 +210,7 @@ NNDEPLOY_API_PYBIND11_MODULE("op", m) {
   m.def("hardsigmoid", &hardsigmoidFunc,
         py::return_value_policy::take_ownership);
   m.def("selu", &seluFunc, py::return_value_policy::take_ownership);
+  m.def("silu", &siluFunc, py::return_value_policy::take_ownership);
   m.def("tanh", &tanhFunc, py::return_value_policy::take_ownership);
   m.def("abs", &absFunc, py::return_value_policy::take_ownership);
   m.def("acos", &acosFunc, py::return_value_policy::take_ownership);

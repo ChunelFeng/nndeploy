@@ -108,6 +108,20 @@ device::Tensor* seluFunc(device::Tensor* input) {
   return output;
 }
 
+device::Tensor* siluFunc(device::Tensor* input) {
+  std::stringstream ss;
+
+  device::Tensor* output = new device::Tensor("silu.output");
+  base::Status status = op::silu(input, output);
+  if (status != base::kStatusCodeOk) {
+    ss << "nndeploy::op::silu failed: error code "
+       << base::statusCodeToString(status.getStatusCode());
+    pybind11::pybind11_fail(ss.str());
+  }
+
+  return output;
+}
+
 device::Tensor* tanhFunc(device::Tensor* input) {
   std::stringstream ss;
 

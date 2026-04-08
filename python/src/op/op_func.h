@@ -40,6 +40,7 @@
 #include "nndeploy/op/op_selu.h"
 #include "nndeploy/op/op_sigmoid.h"
 #include "nndeploy/op/op_sign.h"
+#include "nndeploy/op/op_silu.h"
 #include "nndeploy/op/op_sin.h"
 #include "nndeploy/op/op_sinh.h"
 #include "nndeploy/op/op_slice.h"
@@ -78,6 +79,8 @@ device::Tensor* reluFunc(device::Tensor* input);
 device::Tensor* hardsigmoidFunc(device::Tensor* input);
 
 device::Tensor* seluFunc(device::Tensor* input);
+
+device::Tensor* siluFunc(device::Tensor* input);
 
 device::Tensor* tanhFunc(device::Tensor* input);
 
