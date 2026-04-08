@@ -175,6 +175,7 @@ enum OpType : int {
   kOpTypeScan,
   kOpTypeScatter,
   kOpTypeSelu,
+  kOpTypeSilu,
   kOpTypeSequenceAt,
   kOpTypeSequenceConstruct,
   kOpTypeSequenceEmpty,
