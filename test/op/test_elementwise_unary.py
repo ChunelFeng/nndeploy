@@ -88,6 +88,14 @@ class TestSupportedUnaryOperators(unittest.TestCase):
             cpu_src=self.cpu_base_src,
         )
 
+    def test_silu(self):
+        """测试SiLU（支持）"""
+        self._test_operator(
+            nndeploy_func=F.silu,
+            torch_func=torch.nn.functional.silu,
+            cpu_src=self.cpu_base_src,
+        )
+
     def test_tanh(self):
         """测试Tanh（支持）"""
         self._test_operator(

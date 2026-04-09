@@ -44,6 +44,10 @@ def selu(input):
     return Tensor(_C.op.selu(input))
 
 
+def silu(input):
+    return Tensor(_C.op.silu(input))
+
+
 def tanh(input):
     return Tensor(_C.op.tanh(input))
 
