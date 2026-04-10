@@ -122,6 +122,34 @@ device::Tensor* siluFunc(device::Tensor* input) {
   return output;
 }
 
+device::Tensor* swigluFunc(device::Tensor* input) {
+  std::stringstream ss;
+
+  device::Tensor* output = new device::Tensor("swiglu.output");
+  base::Status status = op::swiglu(input, output);
+  if (status != base::kStatusCodeOk) {
+    ss << "nndeploy::op::swiglu failed: error code "
+       << base::statusCodeToString(status.getStatusCode());
+    pybind11::pybind11_fail(ss.str());
+  }
+
+  return output;
+}
+
+device::Tensor* swigluFunc(device::Tensor* input1, device::Tensor* input2) {
+  std::stringstream ss;
+
+  device::Tensor* output = new device::Tensor("swiglu.output");
+  base::Status status = op::swiglu(input1, input2, output);
+  if (status != base::kStatusCodeOk) {
+    ss << "nndeploy::op::swiglu failed: error code "
+       << base::statusCodeToString(status.getStatusCode());
+    pybind11::pybind11_fail(ss.str());
+  }
+
+  return output;
+}
+
 device::Tensor* tanhFunc(device::Tensor* input) {
   std::stringstream ss;
 
