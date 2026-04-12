@@ -48,6 +48,13 @@ def silu(input):
     return Tensor(_C.op.silu(input))
 
 
+def swiglu(input, input2=None):
+    if input2 is None:
+        return Tensor(_C.op.swiglu(input))
+    else:
+        return Tensor(_C.op.swiglu(input, input2))
+
+
 def tanh(input):
     return Tensor(_C.op.tanh(input))
 

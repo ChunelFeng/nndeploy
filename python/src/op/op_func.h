@@ -47,6 +47,7 @@
 #include "nndeploy/op/op_softmax.h"
 #include "nndeploy/op/op_split.h"
 #include "nndeploy/op/op_sqrt.h"
+#include "nndeploy/op/op_swiglu.h"
 #include "nndeploy/op/op_tan.h"
 #include "nndeploy/op/op_tanh.h"
 #include "nndeploy/op/op_transpose.h"
@@ -81,6 +82,10 @@ device::Tensor* hardsigmoidFunc(device::Tensor* input);
 device::Tensor* seluFunc(device::Tensor* input);
 
 device::Tensor* siluFunc(device::Tensor* input);
+
+device::Tensor* swigluFunc(device::Tensor* input);
+
+device::Tensor* swigluFunc(device::Tensor* input1, device::Tensor* input2);
 
 device::Tensor* tanhFunc(device::Tensor* input);
 

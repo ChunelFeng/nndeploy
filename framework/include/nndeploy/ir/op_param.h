@@ -199,6 +199,7 @@ enum OpType : int {
   kOpTypeSqueeze,
   kOpTypeSub,
   kOpTypeSum,
+  kOpTypeSwiGLU,
   kOpTypeTan,
   kOpTypeTanh,
   kOpTypeTfIdf,
