@@ -154,6 +154,7 @@ static const std::map<OpType, std::string> g_optype_string_map = {
     {kOpTypeXor, "kOpTypeXor"},
     {kOpTypeRMSNorm, "kOpTypeRMSNorm"},
     {kOpTypeEmbedding, "kOpTypeEmbedding"},
+    {kOpTypeLayerNormalization, "kOpTypeLayerNormalization"},
 
     {kOpTypeNone, "kOpTypeNone"},
 };
@@ -307,6 +308,7 @@ static const std::map<std::string, OpType> g_string_optype_map = {
     {"kOpTypeXor", kOpTypeXor},
     {"kOpTypeRMSNorm", kOpTypeRMSNorm},
     {"kOpTypeEmbedding", kOpTypeEmbedding},
+    {"kOpTypeLayerNormalization", kOpTypeLayerNormalization},
 
     {"kOpTypeNone", kOpTypeNone},
 };
@@ -379,6 +381,8 @@ REGISTER_OP_PARAM_IMPLEMENTION(kOpTypeSplit, SplitParam);
 REGISTER_OP_PARAM_IMPLEMENTION(kOpTypeTranspose, TransposeParam);
 
 REGISTER_OP_PARAM_IMPLEMENTION(kOpTypeRMSNorm, RMSNormParam);
+REGISTER_OP_PARAM_IMPLEMENTION(kOpTypeLayerNormalization,
+                               LayerNormalizationParam);
 
 REGISTER_OP_PARAM_IMPLEMENTION(kOpTypeBatchNormalization,
                                BatchNormalizationParam);
