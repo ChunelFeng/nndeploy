@@ -26,6 +26,7 @@
 #include "nndeploy/op/op_gemm.h"
 #include "nndeploy/op/op_global_averagepool.h"
 #include "nndeploy/op/op_hardsigmoid.h"
+#include "nndeploy/op/op_layernorm.h"
 #include "nndeploy/op/op_log.h"
 #include "nndeploy/op/op_mat_mul.h"
 #include "nndeploy/op/op_maxpool.h"
@@ -62,6 +63,10 @@ namespace nndeploy {
 
 device::Tensor* rmsNormFunc(device::Tensor* input, device::Tensor* weight,
                             std::shared_ptr<ir::RMSNormParam> param);
+
+device::Tensor* layerNormFunc(
+    device::Tensor* input, device::Tensor* weight, device::Tensor* bias,
+    std::shared_ptr<ir::LayerNormalizationParam> param);
 
 device::Tensor* convFunc(device::Tensor* input, device::Tensor* weight,
                          device::Tensor* bias,
